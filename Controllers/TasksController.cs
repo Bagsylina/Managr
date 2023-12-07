@@ -1,0 +1,176 @@
+﻿using Managr.Data;
+using Managr.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
+namespace Managr.Controllers
+{
+    public class TasksController : Controller
+    {
+        private readonly ApplicationDbContext db;
+        private IWebHostEnvironment _env;
+
+        public TasksController(ApplicationDbContext context, IWebHostEnvironment env)
+        {
+            db = context;
+            _env = env;
+        }
+
+        public IActionResult Index()
+        {
+            var tasks = db.Tasks;
+
+            if(TempData.ContainsKey("Message"))
+            {
+                ViewBag.Message = TempData["Message"];
+                ViewBag.Alert = TempData["Alert"];
+            }
+
+            ViewBag.Tasks = tasks;
+
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult New()
+        {
+            Models.Task task = new Models.Task();
+
+            return View(task);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> New(Models.Task task, IFormFile TaskFile)
+        {
+            if(ModelState.IsValid)
+            {
+                if(TaskFile.Length > 0)
+                {
+                    var storagePath = Path.Combine(_env.WebRootPath, "files", TaskFile.FileName);
+                    var databaseFileName = "/files/" + TaskFile.FileName;
+
+                    using (var fileStream = new FileStream(storagePath, FileMode.Create))
+                    {
+                        await TaskFile.CopyToAsync(fileStream);
+                    }
+
+                    task.Multimedia = databaseFileName;
+                }
+    
+                db.Tasks.Add(task);
+                db.SaveChanges();
+
+                TempData["Message"] = "Task" + task.Title + " was added";
+                TempData["Alert"] = "alert-success";
+
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                ViewBag.Message = "Invalid task";
+                ViewBag.Alert = "alert-danger";
+
+                return View(task);
+            }
+        }
+
+        public IActionResult Show(int id)
+        {
+            Models.Task task = db.Tasks.Include("Comments")
+                                .Where(tsk => tsk.Id == id)
+                                .First();
+
+            return View(task);
+        }
+
+        [HttpPost]
+        public IActionResult Show([FromForm] Comment comment)
+        {
+            comment.CreatedDate = DateTime.Now;
+
+            if(ModelState.IsValid)
+            {
+                db.Comments.Add(comment);
+                db.SaveChanges();
+            }
+
+            return Redirect("/Tasks/Show/" + comment.TaskId);
+        }
+
+        [HttpGet]
+        public IActionResult Edit(int id) 
+        {
+            Models.Task task = db.Tasks.Find(id);
+
+            return View(task);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(int id,  Models.Task requestTask)
+        {
+            Models.Task task = db.Tasks.Find(id);
+
+            if(ModelState.IsValid)
+            {
+                task.Title = requestTask.Title;
+                task.Description = requestTask.Description;
+                task.Status = requestTask.Status;
+                task.StartDate = requestTask.StartDate;
+                task.Deadline = requestTask.Deadline;
+
+                db.SaveChanges();
+
+                TempData["message"] = "Task " + task.Title + " was edited";
+                TempData["messageType"] = "alert-success";
+
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                ViewBag.Message = "Invalid task";
+                ViewBag.Alert = "alert-danger";
+
+                return View(task);
+            }
+        }
+
+        [HttpPost]
+        public IActionResult EditStatus(int id, [FromForm] string newStatus) 
+        {
+            Models.Task task = db.Tasks.Find(id);
+
+            if(ModelState.IsValid)
+            {
+                task.Status = newStatus;
+                db.SaveChanges();
+
+                TempData["message"] = "The status of task " + task.Title + " was edited";
+                TempData["messageType"] = "alert-success";
+
+                return Redirect("/Tasks/Show/" + id);
+            }
+            else
+            {
+                TempData["message"] = "Invalid task";
+                TempData["messageType"] = "alert-danger";
+
+                return Redirect("/Tasks/Index");
+            }
+        }
+
+        [HttpPost]
+        public IActionResult Delete(int id)
+        {
+            Models.Task task = db.Tasks.Include("Comments")
+                                .Where(tsk => tsk.Id == id)
+                                .First();
+            db.Tasks.Remove(task);
+            db.SaveChanges();
+
+            TempData["message"] = "Task-ul a fost sters.";
+            TempData["messageType"] = "alert-success";
+
+            return RedirectToAction("Index");
+        }
+    }
+}

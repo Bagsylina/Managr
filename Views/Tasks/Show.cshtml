@@ -1,0 +1,162 @@
+﻿@model Managr.Models.Task
+
+@{
+    ViewBag.Title = "Show";
+}
+
+
+<div class="d-flex justify-content-center">
+
+    <a class="btn btn-outline-success" href="/Tasks/Index/">Show All Tasks</a>
+    <br />
+    <a class="btn btn-outline-success" href="/Tasks/New">New Task</a>
+    <br />
+
+</div>
+
+<div class="card">
+
+    <div class="card-body">
+
+        <h3 class="card-title alert-primary py-3 px-3 rounded-2">@Model.Title</h3>
+        <div class="card-text">@Model.Description</div>
+        <embed src="@Model.Multimedia" style="max-height: 500px; max-width: 500px"/>
+        <div class="d-flex justify-content-between flex-row mt-5">
+
+            @if (Model.Status == "Not Started")
+            {
+                <span class="alert-danger px-1 align-content-center">@Model.Status</span>
+            }
+            @if (Model.Status == "In Progress" || Model.Status == "On Hold")
+            {
+                <span class="alert-warning px-1 align-content-center">@Model.Status</span>
+            }
+            @if (Model.Status == "Completed")
+            {
+                <span class="alert-success px-1 align-content-center">@Model.Status</span>
+            }
+
+            <span class="alert-info px-1 align-content-center">@Model.StartDate</span>
+            <span class="alert-danger px-1 align-content-center">@Model.Deadline</span>
+
+        </div>
+
+    </div>
+
+    <hr />
+
+    <form method="post" action="/Tasks/EditStatus/@Model.Id">
+        <div class="d-flex flex-row p-3 border-1 border-top">
+            <div>
+                @{
+                    List<SelectListItem> StatusList = new List<SelectListItem>();
+                    StatusList.Add(new SelectListItem
+                    {
+                        Text = "Not Started",
+                        Value = "Not Started",
+                        Selected = ("Not Started" == Model.Status)
+                    });
+                    StatusList.Add(new SelectListItem
+                    {
+                        Text = "In Progress",
+                        Value = "In Progress",
+                        Selected = ("In Progress" == Model.Status)
+                    });
+                    StatusList.Add(new SelectListItem
+                    {
+                        Text = "Completed",
+                        Value = "Completed",
+                        Selected = ("Completed" == Model.Status)
+                    });
+                    StatusList.Add(new SelectListItem
+                    {
+                        Text = "On Hold",
+                        Value = "On Hold",
+                        Selected = ("On Hold" == Model.Status)
+                    });
+                    @Html.DropDownList("newStatus", StatusList, new { @class = "form-control" })
+                    @Html.ValidationMessage("newStatus", null, new { @class = "text-danger" })
+                 }
+            </div>
+            <div>
+                <button class="btn btn-secondary" type="submit">Edit Status</button>
+            </div>
+        </div>
+    </form>
+
+    <div class="d-flex flex-row justift-content-between">
+
+        <a class="btn btn-secondary" href="/Tasks/Edit/@Model.Id"><i class="bi bi-pencil-square"></i> Edit Task</a>
+
+        <form method="post" action="/Tasks/Delete/@Model.Id">
+            <button class="btn btn-danger" type="submit"><i class="bi bi-trash"></i> Delete Task</button>
+        </form>
+
+    </div>
+
+</div>
+
+@foreach (var comm in Model.Comments)
+{
+    <div class="container">
+        <div class="row">
+            <div class="col-md-2"></div>
+
+            <div class="col-md-8">
+
+                <div>
+                    <p>@comm.Content</p>
+                    <small>@comm.CreatedDate</small>
+                </div>
+
+                <br />
+
+                <div class="d-flex">
+
+                    <div>
+                        <a class="btn btn-outline-secondary" href="/Comments/Edit/@comm.Id"><i class="bi bi-pencil-square"></i> Edit</a>
+                    </div>
+
+                    <div>
+                        <form method="post" action="/Comments/Delete/@comm.Id">
+                            <button class="btn btn-outline-danger" type="submit"><i class="bi bi-trash"></i> Delete</button>
+                        </form>
+                    </div>
+                </div>
+
+                <br />
+
+            </div>
+
+            <div class="col-md-2"></div>
+        </div>
+    </div>
+}
+
+<div class="container">
+    <div class="row">
+
+        <div class="col-md-2"></div>
+
+        <div class="col-md-8">
+            <div class="card">
+                <form method="post" action="/Tasks/Show/@Model.Id">
+                    <div class="card-body">
+
+                        <input type="hidden" name="TaskId" value="@Model.Id" />
+
+                        <label>Comment</label>
+                        <textarea class="form-control" name="Content"></textarea>
+                        @Html.ValidationMessage("Content", null, new { @class = "text-danger" })
+                        <br/>
+
+                        <button class="btn btn-success " type="submit">Add Comment</button>
+
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-md-2"></div>
+    </div>
+</div>

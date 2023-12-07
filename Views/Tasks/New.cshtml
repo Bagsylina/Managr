@@ -1,0 +1,75 @@
+﻿@model Managr.Models.Task
+
+@{
+    ViewBag.Title = "New";
+}
+
+
+<h1 class="text-center">New Task</h1>
+
+<br />
+
+@if (ViewBag.Message != null)
+{
+    <h4 class="@ViewBag.Alert p-3 rounded-3 text-center mb-2">@ViewBag.Message</h4>
+}
+
+@using (Html.BeginForm(actionName: "New",
+                   controllerName: "Tasks",
+                   FormMethod.Post,
+                   new { enctype = "multipart/form-data" }))
+{
+    @Html.Label("Title", "Title")
+    @Html.TextBox("Title", null, new {@class = "form-control"})
+    @Html.ValidationMessage("Title", null, new { @class = "text-danger" })
+    <br/>
+
+    @Html.Label("Description", "Description")
+    @Html.TextArea("Description", null, new {@class = "form-control"})
+    @Html.ValidationMessage("Description", null, new { @class = "text-danger" })
+    <br/>
+
+
+    @Html.Label("Status", "Status")
+    List<SelectListItem> StatusList = new List<SelectListItem>();
+    StatusList.Add(new SelectListItem
+                {
+                    Text = "Not Started",
+                    Value = "Not Started",
+                    Selected = true
+                });
+    StatusList.Add(new SelectListItem
+                {
+                    Text = "In Progress",
+                    Value = "In Progress"
+                });
+    StatusList.Add(new SelectListItem
+                {
+                    Text = "Completed",
+                    Value = "Completed"
+                });
+    StatusList.Add(new SelectListItem
+                {
+                    Text = "On Hold",
+                    Value = "On Hold"
+                });
+    @Html.DropDownList("Status", StatusList, new {@class = "form-control"})
+    @Html.ValidationMessage("Status", null, new { @class = "text-danger" })
+    <br/>
+
+    @Html.Label("StartDate", "Starting Date")
+    <input class="form-control" asp-for="StartDate" asp-format="{0:yyyy-MM-ddTHH:mm}" value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
+    @Html.ValidationMessage("StartDate", null, new { @class = "text-danger" })
+    <br/>
+
+    @Html.Label("Deadline", "Deadline")
+    <input class="form-control" asp-for="Deadline" asp-format="{0:yyyy-MM-ddTHH:mm}" value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
+    @Html.ValidationMessage("Deadline", null, new { @class = "text-danger" })
+    <br/>
+
+    @Html.Label("Multimedia", "Multimedia Content")
+    <input class="form-control" type="file" name="TaskFile" />
+    <br/>
+
+    <button type="submit" class="btn btn-primary">Add Task</button>
+}
