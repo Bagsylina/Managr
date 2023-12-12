@@ -4,6 +4,7 @@ namespace Managr.Models
 {
     public class Task
     {
+        // PK
         [Key]
         public int Id { get; set; }
 
@@ -12,7 +13,9 @@ namespace Managr.Models
 
         [Required (ErrorMessage = "Description is required")]
         public string Description { get; set; }
-         
+        
+        // Task status
+        // Will be modified when we add status types in the data base
         [Required (ErrorMessage = "Status is required")]
         public string Status { get; set; }
 

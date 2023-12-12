@@ -1,0 +1,24 @@
+﻿@{
+    ViewBag.Title = "Index proiecte";
+}
+
+<h1>Proiecte</h1>
+
+<!-- Urmeaza sa adaug o afisare mai frumoasa, dar pe moment asta functioneaza -->
+@foreach(Managr.Models.Project proj in ViewBag.Proiecte)
+{
+    <div>
+        <h3>
+            @proj.Name
+        </h3>
+        
+        <p>
+            @proj.Description
+        </p>
+        
+        <div>
+            <i i class="bi bi-person"></i>
+            @proj.Organizer.Name
+        </div>
+    </div>
+}
