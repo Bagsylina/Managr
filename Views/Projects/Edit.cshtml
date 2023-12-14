@@ -1,7 +1,7 @@
 ﻿@model Managr.Models.Project
 
 @{
-    ViewBag.Title = "New Project";
+    ViewBag.Title = "Edit project";
 }
 
 @if (ViewBag.Message != null)
@@ -12,7 +12,7 @@
 }
 
 <div>
-    @using (Html.BeginForm(actionName: "New", controllerName: "Projects",
+    @using (Html.BeginForm(actionName: "Edit", controllerName: "Projects",
     method: FormMethod.Post))
     {
         @Html.ValidationSummary(false, "", new { @class = "text-danger" })
@@ -32,6 +32,8 @@
 
         @Html.ValidationMessage("Description", null, new { @class = "text-danger" })
         <br />
+
+        // TODO: Allow the change of project ownership
 
         <br />
 

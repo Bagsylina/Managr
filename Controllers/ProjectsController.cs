@@ -29,12 +29,21 @@ namespace Managr.Controllers
             _roleManager=roleManager;
         }
 
+        [NonAction]
+        public void SetAdminRights()
+        {
+            ViewBag.UserId = _userManager.GetUserId(User);
+            ViewBag.IsAdmin = User.IsInRole("Admin");
+        }
+
         // All the projects that a user has access to
         public IActionResult Index()
         {
             var Proiecte = db.Projects
                              .Include("Organizer")
-                             .Where(proj => proj.OrganizerId == _userManager.GetUserId(User) || User.IsInRole("Admin"));
+                             .Where(proj => proj.OrganizerId == _userManager.GetUserId(User) ||
+                                            User.IsInRole("Admin")
+                                   );
 
             ViewBag.Proiecte=Proiecte;
 
@@ -55,13 +64,31 @@ namespace Managr.Controllers
         }
 
         // Shows one speciffic project
-        public IActionResult Show(int id)
+        public IActionResult Show(int Id)
         {
-            var Proiect = db.Projects
-                            .Include("Organizer")
-                            .Where(proj => proj.OrganizerId == _userManager.GetUserId(User) || User.IsInRole("Admin"));
+            Project proj;
+            try
+            {
+                 proj = db.Projects
+                          .Include("Organizer")
+                          .Where(proj => proj.Id == Id && 
+                                         (User.IsInRole("Admin") ||
+                                          _userManager.GetUserId(User) == proj.OrganizerId
+                                         )
+                                )
+                          .First();
+            }
+            catch (Exception)
+            {
+                TempData["Message"] = "The project does not exist or you don't have privileges to see it";
+                TempData["Alert"] = "alert-danger";
 
-            return View(Proiect);
+                return RedirectToAction("Index");
+            }
+            
+            SetAdminRights();
+
+            return View(proj);
         }
 
         // New project form
@@ -96,6 +123,108 @@ namespace Managr.Controllers
             ViewBag.Alert = "alert-danger";
 
             return View(proj);
+        }
+
+        // Edit form
+        // HttpGet by default
+        public IActionResult Edit(int Id)
+        {
+            Project project;
+            try
+            {
+                project = db.Projects
+                            .Where(proj => proj.Id == Id && 
+                                           (User.IsInRole("Admin") ||
+                                            _userManager.GetUserId(User) == proj.OrganizerId
+                                           )
+                                  )
+                            .First();
+            }
+            catch (Exception)
+            {
+                TempData["Message"] = "You do not have edit privileges on the project or the project does not exist.";
+                TempData["Alert"] = "alert-danger";
+
+                return RedirectToAction("Index");
+            }
+
+            return View(project);
+        }
+
+        // Check if the form modifications are valid and save modified project
+        [HttpPost]
+        public IActionResult Edit(Project formProj)
+        {
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Message = "The modifications could not be saved";
+                ViewBag.Alert = "alert-danger";
+
+                return View();
+            }
+
+            Project project;
+            try
+            {
+                project = db.Projects
+                            .Where(proj => proj.Id == formProj.Id && 
+                                           (User.IsInRole("Admin") ||
+                                            _userManager.GetUserId(User) == proj.OrganizerId
+                                           )
+                                  )
+                            .First();
+            }
+            catch(Exception)
+            {
+                TempData["Message"] = "You do not have edit privileges on the project or the project does not exist.";
+                TempData["Alert"] = "alert-danger";
+
+                return RedirectToAction("Index");
+            }
+
+            project.Name = formProj.Name;
+            project.Description = formProj.Description;
+            
+            // TODO: Change the organizer id if the project changes ownership
+
+            db.SaveChanges();
+
+            TempData["Message"] = "The modifications have been saved";
+            TempData["Alert"] = "alert-success";
+
+            return RedirectToAction("Index");
+        }
+
+        // Check for rights and delete the project
+        public IActionResult Delete(int Id)
+        {
+            Project project;
+            try
+            {
+                project = db.Projects
+                            .Include("Tasks") // This  should do delete on cascade
+                            .Where(proj => proj.Id == Id && 
+                                           (User.IsInRole("Admin") ||
+                                            _userManager.GetUserId(User) == proj.OrganizerId
+                                           )
+                                  )
+                            .First();
+            }
+            catch(Exception)
+            {
+                TempData["Message"] = "You do not have delete privileges on the project or the project does not exist.";
+                TempData["Alert"] = "alert-danger";
+
+                return RedirectToAction("Index");
+            }
+
+            db.Projects.Remove(project);
+            db.SaveChanges();
+
+            TempData["Message"] = "The project has been deleted successfuly";
+            TempData["Alert"] = "alert-success";
+
+            return RedirectToAction("Index");
         }
     }
 }

@@ -27,5 +27,8 @@ namespace Managr.Models
 
         // The organizer (The admin of the project)
         public virtual ApplicationUser? Organizer { get; set; }
+
+        // The tasks of the project
+        public virtual ICollection<Task>? Tasks { get; set; }
     }
 }

@@ -4,6 +4,10 @@
     ViewBag.Title = "Show";
 }
 
+@*
+    A prettier Show will be added
+*@
+
 <h1>@Model.Name</h1>
 
 <div>
@@ -14,4 +18,17 @@
     <i class="bi bi-person"></i>
     This project is maintained by @Model.Organizer.UserName
     <i class="bi bi-person"></i>
+
+    @if (ViewBag.UserId == @Model.OrganizerId || ViewBag.IsAdmin)
+    {
+        <a class="btn btn-outline-primary" href="/Projects/Edit/@Model.Id">
+            <i class="bi bi-pencil"></i>
+            Edit project!
+        </a>
+        <br />
+        <a class="btn btn-outline-danger" href="/Projects/Delete/@Model.Id">
+            <i class="bi bi-trash"></i>
+            Delete project!
+        </a>
+    }
 </div>

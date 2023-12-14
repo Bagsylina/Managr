@@ -3,8 +3,15 @@
 }
 
 @*
-    A prettier Show will be added
+    A prettier Index will be added
 *@
+
+@if (ViewBag.Message != null)
+{
+    <div class="alert @ViewBag.Alert p-3 rounded-3 text-center mb-5">
+        @ViewBag.Message
+    </div>
+}
 
 <h1>Projects</h1>
 
