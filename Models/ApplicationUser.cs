@@ -5,21 +5,16 @@ namespace Managr.Models
 {
     public class ApplicationUser : IdentityUser
     {
-        // UserName
-        // Obligatoriu
-        [Required (ErrorMessage = "Numele de utilizator este obligatoriu")]
-        public string? Name { get; set; }
-        
-        // Numele fisierului unde va fi incarcata poza de profil.
-        // Nu este o prioritate sa adaugam poze de profil dar o vom face curand
-        // Lipsa valorii reprezinta faptul ca poza de profil este una implicita
+        // File name where we will store the profile picture
+        // It is not a priority right now
+        // A null value means a default profile picture
         // public string? ProfilePictureFileName { get; set; }
 
-        // Proiectele detinute de acest utilizator
+        // The projects owned by the user
         public virtual ICollection<Project>? Projects { get; set; }
 
-        // Proiectele din care acest utilizator face parte
-        // Momentan nu este implementat, urmeaza
+        // The projects this user is part of
+        // Currently not implemented
     }
 
 }

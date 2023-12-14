@@ -8,6 +8,10 @@ namespace Managr.Models
         [Key]
         public int Id { get; set; }
 
+        public int ProjectId { get; set; }
+
+        public string ProjectOrganizerId { get; set; }
+
         [Required (ErrorMessage = "Title is required")]
         public string Title { get; set; }
 
@@ -28,5 +32,7 @@ namespace Managr.Models
         public string? Multimedia { get; set; }
 
         public virtual ICollection<Comment>? Comments { get; set; }
+
+        public virtual Project? Project { get; set; }
     }
 }

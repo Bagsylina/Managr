@@ -1,10 +1,13 @@
 ﻿@{
-    ViewBag.Title = "Index proiecte";
+    ViewBag.Title = "All projects";
 }
 
-<h1>Proiecte</h1>
+@*
+    A prettier Show will be added
+*@
 
-<!-- Urmeaza sa adaug o afisare mai frumoasa, dar pe moment asta functioneaza -->
+<h1>Projects</h1>
+
 @foreach(Managr.Models.Project proj in ViewBag.Proiecte)
 {
     <div>
@@ -17,8 +20,8 @@
         </p>
         
         <div>
-            <i i class="bi bi-person"></i>
-            @proj.Organizer.Name
+            <i class="bi bi-person"></i>
+            @proj.Organizer.UserName
         </div>
     </div>
 }

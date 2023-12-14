@@ -1,0 +1,42 @@
+﻿@model Managr.Models.Project
+
+@{
+    ViewBag.Title = "New Project";
+}
+
+@if (ViewBag.Message != null)
+{
+    <div class="alert @ViewBag.Alert p-3 rounded-3 text-center mb-5">
+        @ViewBag.Message
+    </div>
+}
+
+<div>
+    @using (Html.BeginForm(actionName: "New", controllerName: "Projects",
+    method: FormMethod.Post))
+    {
+        <div class="alert alert-danger p-3 rounded-3 text-center mb-5">
+            @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+        </div>
+
+        @Html.Label("Name", "Project Name:")
+        <br />
+        @Html.TextBox("Name", null, new { @class = "form-control" })
+
+        @Html.ValidationMessageFor(proj => proj.Name, "", new { @class = "text-danger" })
+        <br />
+
+        @Html.Label("Description", "Public Project Description:")
+        <br />
+        // TODO: summernote here to expand customization possibilities for
+        // project description
+        @Html.TextArea("Description", null, new { @class = "form-controll" })
+
+        @Html.ValidationMessage("Description", null, new { @class = "text-danger" })
+        <br />
+
+        <br />
+
+        <button class="btn btn-success" type="submit">Save Project!</button>
+    }
+</div>

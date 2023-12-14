@@ -11,7 +11,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-// Tipul utilizatorului este ApplicationUser
+// ApplicationUser type
 builder.Services.AddDefaultIdentity<ApplicationUser>
     (options =>
         options.SignIn.RequireConfirmedAccount = true
@@ -52,7 +52,7 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Tasks}/{action=Index}/{id?}");
+    pattern: "{controller=Projects}/{action=Index}/{id?}");
 app.MapRazorPages();
 
 app.Run();

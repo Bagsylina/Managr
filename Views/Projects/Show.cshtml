@@ -1,0 +1,17 @@
+﻿@model Managr.Models.Project
+
+@{
+    ViewBag.Title = "Show";
+}
+
+<h1>@Model.Name</h1>
+
+<div>
+    @Model.Description
+</div>
+
+<div>
+    <i class="bi bi-person"></i>
+    This project is maintained by @Model.Organizer.UserName
+    <i class="bi bi-person"></i>
+</div>

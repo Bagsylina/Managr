@@ -4,35 +4,35 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Managr.Models
 {
-    // Clasa folosita pentru crearea rolurilor si a utilizatorilor de test
+    // Class used to create base roles and users in the database
     public class SeedData
     {
         public static void Initialize(IServiceProvider serviceProvider)
         {
-            // Ne folosim de variabila context pentru a ne conecta cu baza de date
+            // The database context; We use it to add data in the database
             using (var context = new ApplicationDbContext(
                 serviceProvider.GetRequiredService<DbContextOptions<ApplicationDbContext>>()
             ))
             {
-                // Daca deja exista roluri in baza de date atunci nu mai
-                // cream altele
+                // If the database already has roles then we don't add them again
                 if(context.Roles.Any())
                 {
                     return;
                 }
 
-                // Creez rolurile in baza de date
-                // Deoarece rolul de utilizator neinregistrat si organizator nu trebuie stocate vom avea
-                // doar roluri de utilizator inregistrat si administrator
+                // Here we create the roles
+                // Because the not registered user and the organizer are not "roles" they are not stored
+                // Hence only registered user and admin roles are added
                 context.Roles.AddRange(
                     new IdentityRole { Id = "01234567-89ab-cdef-0123-456789abcdef", Name = "User", NormalizedName = "User".ToUpper()},
                     new IdentityRole { Id = "fedcba98-7654-3210-fedc-ba9876543210", Name = "Admin", NormalizedName = "Admin".ToUpper()}
                 );
 
-                // Hasher pentru parole
+                // Password hasher
                 var hasher = new PasswordHasher<ApplicationUser>();
 
-                // Creez utilizatori in baza de date
+                // Here we create the users
+                // The 2 basic users are an admin and a regular user
                 context.Users.AddRange(
                     new ApplicationUser
                     {
@@ -56,6 +56,7 @@ namespace Managr.Models
                     }
                 );
 
+                // Assign roles to the users
                 context.UserRoles.AddRange(
                     new IdentityUserRole<string>
                     {
