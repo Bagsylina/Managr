@@ -12,7 +12,7 @@ namespace Managr.Models
 
         // Composite PK: Id and OrganizerId
         // FK; References ApplicationUser.UserId
-        public string OrganizerId { get; set; }
+        public string? OrganizerId { get; set; }
 
         // Project name/title
         [Required (ErrorMessage = "Project name is required")]
@@ -23,7 +23,6 @@ namespace Managr.Models
         public string? Description { get; set; }
 
         // Creation date
-        [Required]
         public DateTime? CreationDate { get; set; }
 
         // The organizer (The admin of the project)
