@@ -39,6 +39,7 @@ namespace Managr.Controllers
         // All the projects that a user has access to
         public IActionResult Index()
         {
+            // TODO: Change the condition to also return the projects the user is part of
             var Proiecte = db.Projects
                              .Include("Organizer")
                              .Where(proj => proj.OrganizerId == _userManager.GetUserId(User) ||
@@ -71,11 +72,7 @@ namespace Managr.Controllers
             {
                  proj = db.Projects
                           .Include("Organizer")
-                          .Where(proj => proj.Id == Id && 
-                                         (User.IsInRole("Admin") ||
-                                          _userManager.GetUserId(User) == proj.OrganizerId
-                                         )
-                                )
+                          .Where(HasPrivileges(Id))
                           .First();
             }
             catch (Exception)
@@ -133,11 +130,7 @@ namespace Managr.Controllers
             try
             {
                 project = db.Projects
-                            .Where(proj => proj.Id == Id && 
-                                           (User.IsInRole("Admin") ||
-                                            _userManager.GetUserId(User) == proj.OrganizerId
-                                           )
-                                  )
+                            .Where(HasPrivileges(Id))
                             .First();
             }
             catch (Exception)
@@ -167,11 +160,7 @@ namespace Managr.Controllers
             try
             {
                 project = db.Projects
-                            .Where(proj => proj.Id == formProj.Id && 
-                                           (User.IsInRole("Admin") ||
-                                            _userManager.GetUserId(User) == proj.OrganizerId
-                                           )
-                                  )
+                            .Where(HasPrivileges(formProj.Id))
                             .First();
             }
             catch(Exception)
@@ -203,11 +192,7 @@ namespace Managr.Controllers
             {
                 project = db.Projects
                             .Include("Tasks") // This  should do delete on cascade
-                            .Where(proj => proj.Id == Id && 
-                                           (User.IsInRole("Admin") ||
-                                            _userManager.GetUserId(User) == proj.OrganizerId
-                                           )
-                                  )
+                            .Where(HasPrivileges(Id))
                             .First();
             }
             catch(Exception)
@@ -225,6 +210,53 @@ namespace Managr.Controllers
             TempData["Alert"] = "alert-success";
 
             return RedirectToAction("Index");
+        }
+
+        // Form to add members
+        // HttpGet by default
+        public IActionResult AddMembers(int Id)
+        {
+            Project? project;
+
+            project = GetProjectById(Id);
+            if (project == null)
+            {
+                TempData["Message"] = "The project does not exist or you don't have privileges over it.";
+                TempData["Alert"] = "alert-danger";
+                return RedirectToAction("Index");
+            }
+
+            return View(project);
+        }
+
+        // Returns the lambda that checks if the user has privileges
+        // over the project with Id given as parameter
+        [NonAction]
+        private Func<Project, bool> HasPrivileges(int Id)
+        {
+            return proj => proj.Id == Id && 
+                           (User.IsInRole("Admin") ||
+                            _userManager.GetUserId(User) == proj.OrganizerId
+                           );
+        }
+
+        // Checks for Organizer/Admin privileges and checks if the project is in the database
+        // If the project exists and the user has Organizer/Admin privileges then it is returned.
+        // Otherwise null is returned
+        [NonAction]
+        public Project? GetProjectById(int Id)
+        {
+            try
+            {
+                Project? proj = db.Projects
+                                  .Where(HasPrivileges(Id))
+                                  .First();
+                return proj;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
     }
 }
