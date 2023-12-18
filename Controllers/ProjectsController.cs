@@ -72,6 +72,7 @@ namespace Managr.Controllers
             {
                  proj = db.Projects
                           .Include("Organizer")
+                          .Include("Tasks")
                           .Where(HasPrivileges(Id))
                           .First();
             }

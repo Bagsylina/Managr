@@ -7,7 +7,7 @@
 
 <div class="d-flex justify-content-center">
 
-    <a class="btn btn-outline-success" href="/Tasks/Index/">Show All Tasks</a>
+    <a class="btn btn-outline-success" href="/Projects/Show/@Model.ProjectId">Show Project</a>
     <br />
     <a class="btn btn-outline-success" href="/Tasks/New">New Task</a>
     <br />
@@ -107,6 +107,7 @@
                 <div>
                     <p>@comm.Content</p>
                     <small>@comm.CreatedDate</small>
+                    @*<strong><i class="bi bi-person"></i>@comm.User.UserName</strong>*@
                 </div>
 
                 <br />

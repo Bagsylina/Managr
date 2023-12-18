@@ -1,8 +1,8 @@
 ﻿@model Managr.Models.Task
 
-@{
-    ViewBag.Title = "New";
-}
+@*{
+    ViewBag.Title = "New Task";
+}*@
 
 
 <h1 class="text-center">New Task</h1>
@@ -19,6 +19,8 @@
                    FormMethod.Post,
                    new { enctype = "multipart/form-data" }))
 {
+    <input type="hidden" name="ProjectId" value="@ViewBag.ProjectId" />
+
     @Html.Label("Title", "Title")
     @Html.TextBox("Title", null, new {@class = "form-control"})
     @Html.ValidationMessage("Title", null, new { @class = "text-danger" })

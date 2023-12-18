@@ -1,5 +1,6 @@
 ﻿using Managr.Data;
 using Managr.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,11 +9,22 @@ namespace Managr.Controllers
     public class TasksController : Controller
     {
         private readonly ApplicationDbContext db;
+
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
+
         private IWebHostEnvironment _env;
 
-        public TasksController(ApplicationDbContext context, IWebHostEnvironment env)
+        public TasksController(ApplicationDbContext context,
+            UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager, 
+            IWebHostEnvironment env)
         {
             db = context;
+
+            _userManager = userManager;
+            _roleManager = roleManager;
+
             _env = env;
         }
 
@@ -36,6 +48,18 @@ namespace Managr.Controllers
         {
             Models.Task task = new Models.Task();
 
+            if (TempData["ProjectId"] == null)
+            {
+                TempData["Message"] = "The project does not exist or you don't have privileges to add a task.";
+                TempData["Alert"] = "alert-danger";
+
+                return Redirect("/Projects/Index");
+            }
+            else
+            {
+                ViewBag.ProjectId = TempData["ProjectId"];
+            }
+
             return View(task);
         }
 
@@ -44,7 +68,7 @@ namespace Managr.Controllers
         {
             if(ModelState.IsValid)
             {
-                if(TaskFile.Length > 0)
+                if (TaskFile.Length > 0)
                 {
                     var storagePath = Path.Combine(_env.WebRootPath, "files", TaskFile.FileName);
                     var databaseFileName = "/files/" + TaskFile.FileName;
@@ -63,12 +87,13 @@ namespace Managr.Controllers
                 TempData["Message"] = "Task" + task.Title + " was added";
                 TempData["Alert"] = "alert-success";
 
-                return RedirectToAction("Index");
+                return Redirect("/Projects/Show/" + task.ProjectId);
             }
             else
             {
                 ViewBag.Message = "Invalid task";
                 ViewBag.Alert = "alert-danger";
+                ViewBag.ProjectId = task.ProjectId;
 
                 return View(task);
             }
@@ -87,14 +112,23 @@ namespace Managr.Controllers
         public IActionResult Show([FromForm] Comment comment)
         {
             comment.CreatedDate = DateTime.Now;
+            comment.UserId = _userManager.GetUserId(User);
 
-            if(ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 db.Comments.Add(comment);
                 db.SaveChanges();
-            }
 
-            return Redirect("/Tasks/Show/" + comment.TaskId);
+                return Redirect("/Tasks/Show/" + comment.TaskId);
+            }
+            else
+            {
+                Models.Task task = db.Tasks.Include("Comments")
+                                .Where(tsk => tsk.Id == comment.TaskId)
+                                .First();
+
+                return View(task);
+            }
         }
 
         [HttpGet]
@@ -123,7 +157,7 @@ namespace Managr.Controllers
                 TempData["message"] = "Task " + task.Title + " was edited";
                 TempData["messageType"] = "alert-success";
 
-                return RedirectToAction("Index");
+                return Redirect("/Tasks/Show/" + id);
             }
             else
             {
@@ -154,7 +188,7 @@ namespace Managr.Controllers
                 TempData["message"] = "Invalid task";
                 TempData["messageType"] = "alert-danger";
 
-                return Redirect("/Tasks/Index");
+                return Redirect("/Projects/Show/" + task.ProjectId);
             }
         }
 
@@ -170,7 +204,7 @@ namespace Managr.Controllers
             TempData["message"] = "Task-ul a fost sters.";
             TempData["messageType"] = "alert-success";
 
-            return RedirectToAction("Index");
+            return Redirect("/Projects/Show/" + task.ProjectId);
         }
     }
 }

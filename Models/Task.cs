@@ -1,16 +1,16 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Managr.Models
 {
     public class Task
     {
         // PK
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
         public int Id { get; set; }
 
-        public int ProjectId { get; set; }
-
-        public string ProjectOrganizerId { get; set; }
+        public int? ProjectId { get; set; }
 
         [Required (ErrorMessage = "Title is required")]
         public string Title { get; set; }

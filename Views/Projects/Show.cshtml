@@ -38,5 +38,41 @@
             <i class="bi bi-gear"></i>
             Edit project!
         </a>
+
+        TempData["ProjectId"] = Model.Id;
+        <a class="btn btn-outline-success" href="/Tasks/New">New Task</a>
+        <br />
     }
 </div>
+
+@foreach (var task in Model.Tasks)
+{
+    <div class="card">
+        <div class="card-body">
+            <h3 class="card-title alert-success py-3 px-3 rounded-2">@task.Title</h3>
+            @*<p class="card-text">@task.Description</p>*@
+
+            <div class="d-flex justify-content-between flex-row mt-5">
+
+                @if (task.Status == "Not Started")
+                {
+                    <span class="alert-danger px-1 align-content-center">@task.Status</span>
+                }
+                @if (task.Status == "In Progress" || task.Status == "On Hold")
+                {
+                    <span class="alert-warning px-1 align-content-center">@task.Status</span>
+                }
+                @if (task.Status == "Completed")
+                {
+                    <span class="alert-success px-1 align-content-center">@task.Status</span>
+                }
+
+                <span class="alert-info px-1 align-content-center">@task.StartDate</span>
+                <span class="alert-danger px-1 align-content-center">@task.Deadline</span>
+
+                <a href="/Tasks/Show/@task.Id" class="btn btn-outline-success">Show Task</a>
+
+            </div>
+        </div>
+    </div>
+}
