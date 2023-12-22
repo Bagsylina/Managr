@@ -96,6 +96,21 @@
 
 </div>
 
+<br/>
+
+<div class="card">
+    <div class="card-body">
+        @foreach (var assuser in ViewBag.AssignedUsers)
+        {
+            <p>@assuser.UserName</p>
+        }
+        <div class="d-flex flex-row justift-content-between">
+            <a href="/Tasks/ShowUsers/@Model.Id" class="btn btn-outline-success">Show All Assigned Users</a>
+            <a class="btn btn-outline-success" href="/Tasks/AssignUsers/@Model.Id">Assign New User to Task</a>
+        </div>
+    </div>
+</div>
+
 @foreach (var comm in Model.Comments)
 {
     <div class="container">

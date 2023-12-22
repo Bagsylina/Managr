@@ -1,0 +1,23 @@
+﻿@model Managr.Models.Task
+
+<div class="d-flex justify-content-center">
+
+    <a class="btn btn-outline-success" href="/Tasks/Show/@Model.Id">Show Task</a>
+    <br />
+    <a class="btn btn-outline-success" href="/Tasks/AssignUsers/@Model.Id">Assign New User to Task</a>
+    <br />
+
+</div>
+
+<div class="card w-50">
+    @foreach (var assuser in ViewBag.AssignedUsers)
+    {
+        <div class="d-flex justify-content-between flex-row">
+            <p>@assuser.UserName</p>
+            <form method="post" action="/Tasks/RemoveUser/@assuser.UserTaskId">
+                <button class="btn btn-outline-danger" type="submit"><i class="bi bi-person-dash"></i> Remove User</button>
+            </form>
+        </div>
+        <br/>
+    }
+</div>

@@ -2,6 +2,7 @@
 using Managr.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Managr.Controllers
@@ -86,9 +87,24 @@ namespace Managr.Controllers
 
         public IActionResult Show(int id)
         {
-            Models.Task task = db.Tasks.Include("Comments").Include("Comments.User").Include("UserTasks").Include("UserTasks.User")
+            Models.Task task = db.Tasks.Include("Comments").Include("Comments.User")
                                 .Where(tsk => tsk.Id == id)
                                 .First();
+
+            //some of the assigned users to the task
+            var assignedUsers = db.ApplicationUsers
+                                .Join(db.UserTasks, au => au.Id, ut => ut.UserId,
+                                (au, ut) => new
+                                {
+                                    au.Id,
+                                    au.UserName,
+                                    ut.TaskId
+                                })
+                                .Where(ut => ut.TaskId == id)
+                                .OrderBy(au => au.UserName)
+                                .Take(10);
+           
+            ViewBag.AssignedUsers = assignedUsers;
 
             return View(task);
         }
@@ -190,6 +206,85 @@ namespace Managr.Controllers
             TempData["messageType"] = "alert-success";
 
             return Redirect("/Projects/Show/" + task.ProjectId);
+        }
+
+        public IActionResult ShowUsers(int id) //page to show list of all assgined users to a task and option to remove them
+        {
+
+            Models.Task task = db.Tasks
+                                .Where(tsk => tsk.Id == id)
+                                .First();
+
+            //users assigned to the task
+            var assignedUsers = db.ApplicationUsers
+                                .Join(db.UserTasks, au => au.Id, ut => ut.UserId,
+                                (au, ut) => new
+                                {
+                                    au.Id,
+                                    au.UserName,
+                                    ut.TaskId,
+                                    UserTaskId = ut.Id
+                                })
+                                .Where(ut => ut.TaskId == id)
+                                .OrderBy(au => au.UserName);
+
+            ViewBag.AssignedUsers = assignedUsers;
+
+            return View(task);
+        }
+
+
+        public IActionResult AssignUsers(int id) //page to show list of all project users that aren't assigned to the task and option to add them
+        {
+            Models.Task task = db.Tasks
+                                .Where(tsk => tsk.Id == id)
+                                .First();
+
+            //users not assigned to the task
+            var usersToAdd = from au in db.ApplicationUsers
+                             where !(from ut in db.UserTasks
+                                     select ut.UserId)
+                                     .Contains(au.Id)
+                            select au;
+
+            ViewBag.UsersToAdd = usersToAdd;
+
+            return View(task);
+        }
+
+        [HttpPost]
+        public IActionResult AddUser([FromForm] UserTask userTask) //assigned a new user to a task
+        {
+            if(ModelState.IsValid)
+            {
+                //checking if he's not already assigned to the task
+                if (db.UserTasks
+                    .Where(ut => ut.TaskId == userTask.TaskId)
+                    .Where(ut => ut.UserId == userTask.UserId)
+                    .Count() > 0)
+                {
+                    TempData["message"] = "This user is already assigned to this task.";
+                    TempData["messageType"] = "alert-danger";
+                }
+
+                else
+                {
+                    db.UserTasks.Add(userTask);
+                    db.SaveChanges();
+                }
+            }
+            return Redirect("/Tasks/AssignUsers/" + userTask.TaskId);
+        }
+
+        [HttpPost]
+        public IActionResult RemoveUser(int id) //remove a user from a task
+        {
+            UserTask userTask = db.UserTasks.Where(ut => ut.Id == id).First();
+
+            db.UserTasks.Remove(userTask);
+            db.SaveChanges();
+
+            return Redirect("/Tasks/ShowUsers/" + userTask.TaskId);
         }
     }
 }
