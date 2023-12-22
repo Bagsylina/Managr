@@ -15,6 +15,12 @@ namespace Managr.Models
 
         // The projects this user is part of
         // Currently not implemented
+
+        //Comments posted by a User
+        public virtual ICollection<Comment>? Comments { get; set; }
+
+        //Tasks assigned to the User
+        public virtual ICollection<UserTask>? UserTasks { get; set; }
     }
 
 }

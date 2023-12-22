@@ -192,7 +192,7 @@ namespace Managr.Controllers
             try
             {
                 project = db.Projects
-                            .Include("Tasks") // This  should do delete on cascade
+                            .Include("Tasks")// This  should do delete on cascade
                             .Where(HasPrivileges(Id))
                             .First();
             }

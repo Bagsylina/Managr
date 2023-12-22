@@ -33,6 +33,8 @@ namespace Managr.Models
 
         public virtual ICollection<Comment>? Comments { get; set; }
 
+        public virtual ICollection<UserTask>? UserTasks { get; set; }
+
         public virtual Project? Project { get; set; }
     }
 }

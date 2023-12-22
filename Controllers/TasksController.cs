@@ -28,21 +28,6 @@ namespace Managr.Controllers
             _env = env;
         }
 
-        public IActionResult Index()
-        {
-            var tasks = db.Tasks;
-
-            if(TempData.ContainsKey("Message"))
-            {
-                ViewBag.Message = TempData["Message"];
-                ViewBag.Alert = TempData["Alert"];
-            }
-
-            ViewBag.Tasks = tasks;
-
-            return View();
-        }
-
         [HttpGet]
         public IActionResult New()
         {
@@ -101,7 +86,7 @@ namespace Managr.Controllers
 
         public IActionResult Show(int id)
         {
-            Models.Task task = db.Tasks.Include("Comments")
+            Models.Task task = db.Tasks.Include("Comments").Include("Comments.User").Include("UserTasks").Include("UserTasks.User")
                                 .Where(tsk => tsk.Id == id)
                                 .First();
 

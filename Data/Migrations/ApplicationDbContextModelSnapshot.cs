@@ -185,6 +185,29 @@ namespace Managr.Data.Migrations
                     b.ToTable("Tasks");
                 });
 
+            modelBuilder.Entity("Managr.Models.UserTask", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int?>("TaskId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id", "UserId", "TaskId");
+
+                    b.HasIndex("TaskId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserTasks");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
@@ -329,7 +352,7 @@ namespace Managr.Data.Migrations
                         .HasForeignKey("TaskId");
 
                     b.HasOne("Managr.Models.ApplicationUser", "User")
-                        .WithMany()
+                        .WithMany("Comments")
                         .HasForeignKey("UserId");
 
                     b.Navigation("Task");
@@ -353,6 +376,25 @@ namespace Managr.Data.Migrations
                         .HasForeignKey("ProjectId");
 
                     b.Navigation("Project");
+                });
+
+            modelBuilder.Entity("Managr.Models.UserTask", b =>
+                {
+                    b.HasOne("Managr.Models.Task", "Task")
+                        .WithMany("UserTasks")
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Managr.Models.ApplicationUser", "User")
+                        .WithMany("UserTasks")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Task");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -408,7 +450,11 @@ namespace Managr.Data.Migrations
 
             modelBuilder.Entity("Managr.Models.ApplicationUser", b =>
                 {
+                    b.Navigation("Comments");
+
                     b.Navigation("Projects");
+
+                    b.Navigation("UserTasks");
                 });
 
             modelBuilder.Entity("Managr.Models.Project", b =>
@@ -419,6 +465,8 @@ namespace Managr.Data.Migrations
             modelBuilder.Entity("Managr.Models.Task", b =>
                 {
                     b.Navigation("Comments");
+
+                    b.Navigation("UserTasks");
                 });
 #pragma warning restore 612, 618
         }
