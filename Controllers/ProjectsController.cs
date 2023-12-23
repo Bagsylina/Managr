@@ -72,9 +72,29 @@ namespace Managr.Controllers
             {
                  proj = db.Projects
                           .Include("Organizer")
-                          .Include("Tasks")
                           .Where(HasPrivileges(Id))
                           .First();
+
+                //Ability to search tasks of a project
+
+                var tasks = db.Tasks.Where(t => t.ProjectId == proj.Id).OrderBy(t => t.Deadline).OrderBy(t => (t.Status == "Completed"));
+
+                var search = "";
+
+                if (Convert.ToString(HttpContext.Request.Query["search"]) != null)
+                {
+                    search = Convert.ToString(HttpContext.Request.Query["search"]).Trim();
+                    tasks = tasks.Where(t => t.Title.Contains(search) || t.Description.Contains(search)).OrderBy(t => t.Deadline).OrderBy(t => (t.Status == "Completed"));
+                }
+
+                ViewBag.SearchString = search;
+                ViewBag.Tasks = tasks;
+
+                if (search != "")
+                {
+                    ViewBag.PaginationBaseUrl = "/Projects/Show/" + Id + "/?search=" + search;
+                }
+
             }
             catch (Exception)
             {

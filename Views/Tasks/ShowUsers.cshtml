@@ -12,6 +12,17 @@
 
 </div>
 
+<br/>
+
+<form method="GET">
+    <div class="input-group mb-3">
+        <input type="text" class="form-control" placeholder="Enter Username" name="search" value="@ViewBag.SearchString">
+        <button class="btn btn-outline-success" type="submit">Search User</button>
+    </div>
+</form>
+
+<br/>
+
 @foreach (var assuser in ViewBag.AssignedUsers)
 {
     <div class="container">

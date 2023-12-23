@@ -328,10 +328,10 @@ namespace Managr.Controllers
                                     .Count() > 0);
         }
 
+        //You can search the users assigned to a task
         [Authorize(Roles = "User,Admin")]
         public IActionResult ShowUsers(int id) //page to show list of all assgined users to a task and option to remove them
         {
-
             Models.Task task = db.Tasks
                                 .Where(tsk => tsk.Id == id)
                                 .First();
@@ -349,13 +349,28 @@ namespace Managr.Controllers
                                 .Where(ut => ut.TaskId == id)
                                 .OrderBy(au => au.UserName);
 
+            var search = "";
+
+            if (Convert.ToString(HttpContext.Request.Query["search"]) != null)
+            {
+                search = Convert.ToString(HttpContext.Request.Query["search"]).Trim();
+                assignedUsers = assignedUsers.Where(au => au.UserName.Contains(search)).OrderBy(au => au.UserName);
+            }
+
+            ViewBag.SearchString = search;
             ViewBag.AssignedUsers = assignedUsers;
+
+            if (search != "")
+            {
+                ViewBag.PaginationBaseUrl = "/Tasks/ShowUsers/" + id +"/?search=" + search;
+            }
 
             SetAccessRights(id);
 
             return View(task);
         }
 
+        //Can search users to add them to a task
         //Only the Project Organizer can assign users to a task
         [Authorize(Roles = "User,Admin")]
         public IActionResult AssignUsers(int id) //page to show list of all project users that aren't assigned to the task and option to add them
@@ -373,9 +388,24 @@ namespace Managr.Controllers
                                          where ut.TaskId == task.Id
                                          select ut.UserId)
                                          .Contains(au.Id)
+                                 orderby au.UserName ascending
                                  select au;
 
+                var search = "";
+
+                if (Convert.ToString(HttpContext.Request.Query["search"]) != null)
+                {
+                    search = Convert.ToString(HttpContext.Request.Query["search"]).Trim();
+                    usersToAdd = usersToAdd.Where(au => au.UserName.Contains(search)).OrderBy(au => au.UserName);
+                }
+
+                ViewBag.SearchString = search;
                 ViewBag.UsersToAdd = usersToAdd;
+
+                if (search != "")
+                {
+                    ViewBag.PaginationBaseUrl = "/Tasks/AssignUsers/" + id + "/?search=" + search;
+                }
 
                 SetAccessRights(id);
 
