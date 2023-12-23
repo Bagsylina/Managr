@@ -14,102 +14,128 @@
 
 </div>
 
-<div class="card">
+<br/>
 
-    <div class="card-body">
+<div class="container">
+    <div class="row">
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-body">
 
-        <h3 class="card-title alert-primary py-3 px-3 rounded-2">@Model.Title</h3>
-        <div class="card-text">@Model.Description</div>
-        <embed src="@Model.Multimedia" style="max-height: 500px; max-width: 500px"/>
-        <div class="d-flex justify-content-between flex-row mt-5">
+                    <h3 class="card-title alert-primary py-3 px-3 rounded-2">@Model.Title</h3>
+                    <div class="card-text">@Model.Description</div>
+                    <embed src="@Model.Multimedia" style="max-height: 500px; max-width: 500px"/>
+                    <div class="d-flex justify-content-between flex-row mt-5">
 
-            @if (Model.Status == "Not Started")
-            {
-                <span class="alert-danger px-1 align-content-center">@Model.Status</span>
-            }
-            @if (Model.Status == "In Progress" || Model.Status == "On Hold")
-            {
-                <span class="alert-warning px-1 align-content-center">@Model.Status</span>
-            }
-            @if (Model.Status == "Completed")
-            {
-                <span class="alert-success px-1 align-content-center">@Model.Status</span>
-            }
+                        @if (Model.Status == "Not Started")
+                        {
+                            <span class="alert-danger px-1 align-content-center">@Model.Status</span>
+                        }
+                        @if (Model.Status == "In Progress" || Model.Status == "On Hold")
+                        {
+                            <span class="alert-warning px-1 align-content-center">@Model.Status</span>
+                        }
+                        @if (Model.Status == "Completed")
+                        {
+                            <span class="alert-success px-1 align-content-center">@Model.Status</span>
+                        }
 
-            <span class="alert-info px-1 align-content-center">@Model.StartDate</span>
-            <span class="alert-danger px-1 align-content-center">@Model.Deadline</span>
+                        <span class="alert-info px-1 align-content-center">@Model.StartDate</span>
+                        <span class="alert-danger px-1 align-content-center">@Model.Deadline</span>
 
+                    </div>
+
+                </div>
+
+                <br/>
+
+                @if (ViewBag.IsAssigned || ViewBag.IsOrganizer)
+                {
+                    <form method="post" action="/Tasks/EditStatus/@Model.Id">
+                        <div class="d-flex flex-row p-3 border-1 border-top">
+                            <div>
+                                @{
+                                    List<SelectListItem> StatusList = new List<SelectListItem>();
+                                    StatusList.Add(new SelectListItem
+                            {
+                                Text = "Not Started",
+                                Value = "Not Started",
+                                Selected = ("Not Started" == Model.Status)
+                            });
+                                    StatusList.Add(new SelectListItem
+                            {
+                                Text = "In Progress",
+                                Value = "In Progress",
+                                Selected = ("In Progress" == Model.Status)
+                            });
+                                    StatusList.Add(new SelectListItem
+                            {
+                                Text = "Completed",
+                                Value = "Completed",
+                                Selected = ("Completed" == Model.Status)
+                            });
+                                    StatusList.Add(new SelectListItem
+                            {
+                                Text = "On Hold",
+                                Value = "On Hold",
+                                Selected = ("On Hold" == Model.Status)
+                            });
+                                    @Html.DropDownList("newStatus", StatusList, new { @class = "form-control" })
+                                    @Html.ValidationMessage("newStatus", null, new { @class = "text-danger" })
+                                }
+                            </div>
+                            <div>
+                                <button class="btn btn-secondary" type="submit">Edit Status</button>
+                            </div>
+                        </div>
+                    </form>
+                }
+
+                @if (ViewBag.IsAdmin || ViewBag.IsOrganizer)
+                {
+                    <div class="d-flex flex-row justift-content-between">
+
+                        @if (ViewBag.IsOrganizer)
+                        {
+                            <a class="btn btn-secondary" href="/Tasks/Edit/@Model.Id"><i class="bi bi-pencil-square"></i> Edit Task</a>
+                        }
+
+                        <form method="post" action="/Tasks/Delete/@Model.Id">
+                            <button class="btn btn-danger" type="submit"><i class="bi bi-trash"></i> Delete Task</button>
+                        </form>
+
+                    </div>
+                }
+
+            </div>
         </div>
 
-    </div>
-
-    <hr />
-
-    <form method="post" action="/Tasks/EditStatus/@Model.Id">
-        <div class="d-flex flex-row p-3 border-1 border-top">
-            <div>
-                @{
-                    List<SelectListItem> StatusList = new List<SelectListItem>();
-                    StatusList.Add(new SelectListItem
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    @foreach (var assuser in ViewBag.AssignedUsers)
                     {
-                        Text = "Not Started",
-                        Value = "Not Started",
-                        Selected = ("Not Started" == Model.Status)
-                    });
-                    StatusList.Add(new SelectListItem
+                        <p>@assuser.UserName</p>
+                    }
+                    @if (!ViewBag.NonZeroAssigned)
                     {
-                        Text = "In Progress",
-                        Value = "In Progress",
-                        Selected = ("In Progress" == Model.Status)
-                    });
-                    StatusList.Add(new SelectListItem
+                        <p>There are no members assigned to this task yet.</p>
+                    }
+                    @if (ViewBag.NonZeroAssigned)
                     {
-                        Text = "Completed",
-                        Value = "Completed",
-                        Selected = ("Completed" == Model.Status)
-                    });
-                    StatusList.Add(new SelectListItem
+                        <a href="/Tasks/ShowUsers/@Model.Id" class="btn btn-outline-success">Show All Assigned Users</a>
+                    }
+                    @if (ViewBag.IsOrganizer)
                     {
-                        Text = "On Hold",
-                        Value = "On Hold",
-                        Selected = ("On Hold" == Model.Status)
-                    });
-                    @Html.DropDownList("newStatus", StatusList, new { @class = "form-control" })
-                    @Html.ValidationMessage("newStatus", null, new { @class = "text-danger" })
-                 }
-            </div>
-            <div>
-                <button class="btn btn-secondary" type="submit">Edit Status</button>
+                        <a class="btn btn-outline-success" href="/Tasks/AssignUsers/@Model.Id">Assign New User to Task</a>
+                    }
+                </div>
             </div>
         </div>
-    </form>
-
-    <div class="d-flex flex-row justift-content-between">
-
-        <a class="btn btn-secondary" href="/Tasks/Edit/@Model.Id"><i class="bi bi-pencil-square"></i> Edit Task</a>
-
-        <form method="post" action="/Tasks/Delete/@Model.Id">
-            <button class="btn btn-danger" type="submit"><i class="bi bi-trash"></i> Delete Task</button>
-        </form>
-
     </div>
-
 </div>
 
 <br/>
-
-<div class="card">
-    <div class="card-body">
-        @foreach (var assuser in ViewBag.AssignedUsers)
-        {
-            <p>@assuser.UserName</p>
-        }
-        <div class="d-flex flex-row justift-content-between">
-            <a href="/Tasks/ShowUsers/@Model.Id" class="btn btn-outline-success">Show All Assigned Users</a>
-            <a class="btn btn-outline-success" href="/Tasks/AssignUsers/@Model.Id">Assign New User to Task</a>
-        </div>
-    </div>
-</div>
 
 @foreach (var comm in Model.Comments)
 {
@@ -125,22 +151,28 @@
                     <strong><i class="bi bi-person"></i>@comm.User.UserName</strong>
                 </div>
 
-                <br />
+                @if (ViewBag.CurrentUser == comm.UserId || ViewBag.IsAdmin)
+                {
+                    <br/>
 
-                <div class="d-flex">
+                    <div class="d-flex">
 
-                    <div>
-                        <a class="btn btn-outline-secondary" href="/Comments/Edit/@comm.Id"><i class="bi bi-pencil-square"></i> Edit</a>
+                        @if (ViewBag.CurrentUser == comm.UserId)
+                        {
+                            <div>
+                                <a class="btn btn-outline-secondary" href="/Comments/Edit/@comm.Id"><i class="bi bi-pencil-square"></i> Edit</a>
+                            </div>
+                        }
+
+                        <div>
+                            <form method="post" action="/Comments/Delete/@comm.Id">
+                                <button class="btn btn-outline-danger" type="submit"><i class="bi bi-trash"></i> Delete</button>
+                            </form>
+                        </div>
                     </div>
+                }
 
-                    <div>
-                        <form method="post" action="/Comments/Delete/@comm.Id">
-                            <button class="btn btn-outline-danger" type="submit"><i class="bi bi-trash"></i> Delete</button>
-                        </form>
-                    </div>
-                </div>
-
-                <br />
+                <hr />
 
             </div>
 

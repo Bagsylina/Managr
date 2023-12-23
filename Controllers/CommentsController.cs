@@ -1,6 +1,9 @@
 ﻿using Managr.Data;
 using Managr.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace Managr.Controllers
 {
@@ -8,28 +11,57 @@ namespace Managr.Controllers
     {
         private readonly ApplicationDbContext db;
 
-        public CommentsController(ApplicationDbContext context)
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
+
+        public CommentsController(ApplicationDbContext context, 
+            UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager)
         {
             db = context;
+
+            _userManager = userManager;
+            _roleManager = roleManager;
         }
 
+        [Authorize(Roles = "User,Admin")]
         [HttpGet]
         public IActionResult Edit(int id)
         {
             Comment comment = db.Comments.Find(id);
 
-            return View(comment);
+            if (comment.UserId == _userManager.GetUserId(User))
+            {
+                return View(comment);
+            }
+            else
+            {
+                TempData["Message"] = "You don't have the rights to edit this comment.";
+                TempData["Alert"] = "alert-danger";
+
+                return Redirect("/Tasks/Show/" + comment.TaskId);
+            }
         }
 
+        //A comments can only be edited by it's user
+        [Authorize(Roles = "User,Admin")]
         [HttpPost]
         public IActionResult Edit(int id, Comment requestComment)
         { 
             Comment comment = db.Comments.Find(id);
 
             if(ModelState.IsValid)
-            { 
-                comment.Content = requestComment.Content;
-                db.SaveChanges();
+            {
+                if (comment.UserId == _userManager.GetUserId(User))
+                {
+                    comment.Content = requestComment.Content;
+                    db.SaveChanges();
+                }
+                else
+                {
+                    TempData["Message"] = "You don't have the rights to edit this comment.";
+                    TempData["Alert"] = "alert-danger";
+                }
 
                 return Redirect("/Tasks/Show/" + comment.TaskId);
             }
@@ -37,13 +69,23 @@ namespace Managr.Controllers
                 return View(comment);
         }
 
+        //A comment can be deleted by an admin or it's user
+        [Authorize(Roles = "User,Admin")]
         [HttpPost]
         public IActionResult Delete(int id)
         {
             Comment comment = db.Comments.Find(id);
 
-            db.Comments.Remove(comment);
-            db.SaveChanges();
+            if (comment.UserId == _userManager.GetUserId(User) || User.IsInRole("Admin"))
+            {
+                db.Comments.Remove(comment);
+                db.SaveChanges();
+            }
+            else
+            {
+                TempData["Message"] = "You don't have the rights to delete this comment.";
+                TempData["Alert"] = "alert-danger";
+            }
 
             return Redirect("/Tasks/Show/" + comment.TaskId);
         }

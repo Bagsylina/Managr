@@ -4,20 +4,41 @@
 
     <a class="btn btn-outline-success" href="/Tasks/Show/@Model.Id">Show Task</a>
     <br />
-    <a class="btn btn-outline-success" href="/Tasks/AssignUsers/@Model.Id">Assign New User to Task</a>
-    <br />
-
-</div>
-
-<div class="card w-50">
-    @foreach (var assuser in ViewBag.AssignedUsers)
+    @if (ViewBag.IsOrganizer)
     {
-        <div class="d-flex justify-content-between flex-row">
-            <p>@assuser.UserName</p>
-            <form method="post" action="/Tasks/RemoveUser/@assuser.UserTaskId">
-                <button class="btn btn-outline-danger" type="submit"><i class="bi bi-person-dash"></i> Remove User</button>
-            </form>
-        </div>
-        <br/>
+        <a class="btn btn-outline-success" href="/Tasks/AssignUsers/@Model.Id">Assign New User to Task</a>
+        <br />
     }
+
 </div>
+
+@foreach (var assuser in ViewBag.AssignedUsers)
+{
+    <div class="container">
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-8">
+                <div class="d-flex justify-content-between flex-row">
+                    <p>@assuser.UserName</p>
+                    @if (ViewBag.IsOrganizer)
+                    {
+                        <form method="post" action="/Tasks/RemoveUser/@assuser.UserTaskId">
+                            <button class="btn btn-outline-danger" type="submit"><i class="bi bi-person-dash"></i> Remove User</button>
+                        </form>
+                    }
+                    @if(!ViewBag.IsOrganizer)
+                    {
+                        <p></p>
+                    }
+                </div>
+            </div>
+            <div class="col-md-2"></div>
+        </div>
+    </div>
+    <hr/>
+}
+
+@if (!ViewBag.NonZeroAssigned)
+{
+    <p>There are no members assigned to this task yet.</p>
+}
