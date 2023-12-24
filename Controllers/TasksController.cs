@@ -93,7 +93,7 @@ namespace Managr.Controllers
                     db.Tasks.Add(task);
                     db.SaveChanges();
 
-                    TempData["Message"] = "Task" + task.Title + " was added";
+                    TempData["Message"] = "Task " + task.Title + " was added";
                     TempData["Alert"] = "alert-success";
 
                     return Redirect("/Projects/Show/" + task.ProjectId);

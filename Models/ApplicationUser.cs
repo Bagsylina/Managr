@@ -21,6 +21,9 @@ namespace Managr.Models
 
         //Tasks assigned to the User
         public virtual ICollection<UserTask>? UserTasks { get; set; }
+
+        // The Projects that the ApplicationUser has view access to
+        public virtual ICollection<ProjectUser>? ProjectUsers { get; set; }
     }
 
 }

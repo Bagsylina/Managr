@@ -279,5 +279,10 @@ namespace Managr.Controllers
                 return null;
             }
         }
+
+        public IActionResult ManageUsers()
+        {
+            return View();
+        }
     }
 }

@@ -30,5 +30,8 @@ namespace Managr.Models
 
         // The tasks of the project
         public virtual ICollection<Task>? Tasks { get; set; }
+
+        // The ApplicationUsers that have view access to the project
+        public virtual ICollection<ProjectUser>? ProjectUsers { get; set; }
     }
 }

@@ -43,6 +43,20 @@ namespace Managr.Data
                 .HasOne(ut => ut.Task)
                 .WithMany(ut => ut.UserTasks)
                 .HasForeignKey(ut => ut.TaskId);
+
+            //Many-to-Many for ProjectUser
+            modelBuilder.Entity<ProjectUser>()
+                .HasKey(pu => new { pu.ProjectId, pu.UserId });
+
+            modelBuilder.Entity<ProjectUser>()
+                .HasOne(pu => pu.User)
+                .WithMany(pu => pu.ProjectUsers)
+                .HasForeignKey(pu => pu.UserId);
+
+            modelBuilder.Entity<ProjectUser>()
+                .HasOne(pu => pu.Project)
+                .WithMany(pu => pu.ProjectUsers)
+                .HasForeignKey(pu => pu.ProjectId);
         }
     }
 }
