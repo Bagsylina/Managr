@@ -26,6 +26,9 @@ namespace Managr.Data
         // Comments
         public DbSet<Comment> Comments { get; set; }
 
+        // Project - Users
+        public DbSet<ProjectUser> ProjectUsers { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

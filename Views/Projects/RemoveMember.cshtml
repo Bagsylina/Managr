@@ -1,0 +1,38 @@
+﻿@model Managr.Models.Project
+
+@{
+    ViewBag.Title = "Add Member to Project";
+}
+
+@if (ViewBag.Message != null)
+{
+    <div class="alert @ViewBag.Alert p-3 rounded-3 text-center mb-5">
+        @ViewBag.Message
+    </div>
+}
+
+<h1>
+    Remove member from Project @Model.Name
+</h1>
+
+@using (Html.BeginForm(actionName: "RemoveMember", controllerName: "Projects", method: FormMethod.Post))
+{
+    <select name="userId">
+        @foreach (var el in @Model.DropDownMembers)
+        {
+            <option value="@el.Value">
+                @el.Text
+            </option>
+        }
+    </select>
+
+    <br />
+
+    <input type="hidden" name ="projId" value="@Model.Id"/>
+
+    <br />
+
+    <button type="submit" class="btn btn-success">
+        Save modifications!
+    </button>
+}

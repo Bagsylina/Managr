@@ -3,6 +3,7 @@ using Managr.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace Managr.Controllers
@@ -39,27 +40,19 @@ namespace Managr.Controllers
         // All the projects that a user has access to
         public IActionResult Index()
         {
-            // TODO: Change the condition to also return the projects the user is part of
+            var Conns = db.ProjectUsers
+                          .Where(pu => pu.UserId == _userManager.GetUserId(User)
+                                       || User.IsInRole("Admin"))
+                          .Select(pu => pu.ProjectId)
+                          .Distinct();
+
             var Proiecte = db.Projects
                              .Include("Organizer")
-                             .Where(proj => proj.OrganizerId == _userManager.GetUserId(User) ||
-                                            User.IsInRole("Admin")
-                                   );
+                             .Where(proj => Conns.Contains(proj.Id));
 
             ViewBag.Proiecte=Proiecte;
-
-            if (TempData.ContainsKey("Message"))
-            {
-                ViewBag.Message = TempData["Message"];
-                if (TempData.ContainsKey("Alert"))
-                {
-                    ViewBag.Alert = TempData["Alert"];
-                }
-                else
-                {
-                    ViewBag.Alert = "alert-success";
-                }
-            }
+            
+            LoadAlert();
 
             return View();
         }
@@ -68,23 +61,38 @@ namespace Managr.Controllers
         public IActionResult Show(int Id)
         {
             Project proj;
+
+            LoadAlert();
+
             try
             {
-                 proj = db.Projects
-                          .Include("Organizer")
-                          .Where(HasPrivileges(Id))
-                          .First();
+                var members = db.ProjectUsers
+                                .Where(pu => pu.ProjectId == Id)
+                                .Select(pu => pu.UserId);
+
+                proj = db.Projects
+                         .Include("Organizer")
+                         .Include("ProjectUsers")
+                         .Where(proj => proj.Id == Id
+                                        && (User.IsInRole("Admin")
+                                            || members.Contains(_userManager.GetUserId(User))))
+                         .First();
 
                 //Ability to search tasks of a project
 
-                var tasks = db.Tasks.Where(t => t.ProjectId == proj.Id).OrderBy(t => t.Deadline).OrderBy(t => (t.Status == "Completed"));
+                var tasks = db.Tasks
+                              .Where(t => t.ProjectId == proj.Id)
+                              .OrderBy(t => t.Deadline)
+                              .OrderBy(t => (t.Status == "Completed"));
 
                 var search = "";
 
                 if (Convert.ToString(HttpContext.Request.Query["search"]) != null)
                 {
                     search = Convert.ToString(HttpContext.Request.Query["search"]).Trim();
-                    tasks = tasks.Where(t => t.Title.Contains(search) || t.Description.Contains(search)).OrderBy(t => t.Deadline).OrderBy(t => (t.Status == "Completed"));
+                    tasks = tasks.Where(t => t.Title.Contains(search) || t.Description.Contains(search))
+                                 .OrderBy(t => t.Deadline)
+                                 .OrderBy(t => (t.Status == "Completed"));
                 }
 
                 ViewBag.SearchString = search;
@@ -130,6 +138,13 @@ namespace Managr.Controllers
                 db.Projects.Add(proj);
                 db.SaveChanges();
 
+                ProjectUser projUsr = new ProjectUser();
+                projUsr.ProjectId = proj.Id;
+                projUsr.UserId = proj.OrganizerId;
+                db.ProjectUsers.Add(projUsr);
+                Console.WriteLine(projUsr.UserId+" "+projUsr.ProjectId);
+                db.SaveChanges();
+
                 TempData["Message"] = "Project created successfuly";
                 TempData["Alert"] = "alert-success";
 
@@ -148,11 +163,14 @@ namespace Managr.Controllers
         public IActionResult Edit(int Id)
         {
             Project project;
+
             try
             {
                 project = db.Projects
                             .Where(HasPrivileges(Id))
                             .First();
+
+                return View(project);
             }
             catch (Exception)
             {
@@ -161,8 +179,6 @@ namespace Managr.Controllers
 
                 return RedirectToAction("Index");
             }
-
-            return View(project);
         }
 
         // Check if the form modifications are valid and save modified project
@@ -174,7 +190,7 @@ namespace Managr.Controllers
                 ViewBag.Message = "The modifications could not be saved";
                 ViewBag.Alert = "alert-danger";
 
-                return View();
+                return View(formProj);
             }
 
             Project project;
@@ -209,10 +225,12 @@ namespace Managr.Controllers
         public IActionResult Delete(int Id)
         {
             Project project;
+
             try
             {
                 project = db.Projects
-                            .Include("Tasks")// This  should do delete on cascade
+                            .Include("Tasks")// This should do delete on cascade
+                            .Include("ProjectUsers")
                             .Where(HasPrivileges(Id))
                             .First();
             }
@@ -231,23 +249,6 @@ namespace Managr.Controllers
             TempData["Alert"] = "alert-success";
 
             return RedirectToAction("Index");
-        }
-
-        // Form to add members
-        // HttpGet by default
-        public IActionResult AddMembers(int Id)
-        {
-            Project? project;
-
-            project = GetProjectById(Id);
-            if (project == null)
-            {
-                TempData["Message"] = "The project does not exist or you don't have privileges over it.";
-                TempData["Alert"] = "alert-danger";
-                return RedirectToAction("Index");
-            }
-
-            return View(project);
         }
 
         // Returns the lambda that checks if the user has privileges
@@ -274,15 +275,177 @@ namespace Managr.Controllers
                                   .First();
                 return proj;
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 return null;
             }
         }
 
-        public IActionResult ManageUsers()
+        // Form to Add a user to the project.
+        // HttpGet by default
+        public IActionResult AddMember(int Id)
         {
-            return View();
+            Project? proj = GetProjectById(Id);
+
+            LoadAlert();
+
+            if (proj == null)
+            {
+                TempData["Message"] = "The project does not exist or you don't have privileges to add members";
+                TempData["Alert"] = "alert-danger";
+
+                return RedirectToAction("Index");
+            }
+
+            var members = db.ProjectUsers
+                            .Where(pu => pu.ProjectId == Id)
+                            .Select(pu => pu.UserId);
+            var dropDownNonMembers = new List<SelectListItem>();
+            foreach (var user in db.Users
+                                   .Select(u => new {u.Id, u.UserName}))
+            {
+                if (!members.Contains(user.Id))
+                {
+                    dropDownNonMembers.Add(new SelectListItem{ Text = user.UserName, Value = user.Id });
+                }
+            }
+
+            proj.DropDownNonMembers = dropDownNonMembers;
+
+            if (dropDownNonMembers.Count == 0)
+            {
+                TempData["Message"] = "No more members can be added (All the users are also members)";
+                TempData["Alert"] = "alert-warning";
+
+                return RedirectToAction("Show", new { Id = proj.Id });
+            }
+
+            return View(proj);
+        }
+
+        // Receives data from form and saves it to the data base
+        [HttpPost]
+        public IActionResult AddMember([FromForm] int projId, [FromForm] string userId)
+        {
+            ProjectUser pu = new ProjectUser();
+            pu.ProjectId = projId;
+            pu.UserId = userId;
+
+            try
+            {
+                db.ProjectUsers.Add(pu);
+                db.SaveChanges();
+
+                TempData["Message"] = "Member " + db.ApplicationUsers.Find(userId).UserName + " added successfully";
+                TempData["Alert"] = "alert-success";
+
+                return RedirectToAction("AddMember", projId);
+            }
+            catch(Exception)
+            {
+                TempData["Message"] = "The project does not exist or you don't have privileges to add a member";
+                TempData["Alert"] = "alert-danger";
+                
+                return RedirectToAction("Index");
+            }
+        }
+
+        // Form to Remove a member from the project.
+        // HttpGet by default
+        public IActionResult RemoveMember(int Id)
+        {
+            Project? proj = GetProjectById(Id);
+
+            LoadAlert();
+
+            if (proj == null)
+            {
+                TempData["Message"] = "The project does not exist or you don't have privileges to remove a user";
+                TempData["Alert"] = "alert-danger";
+
+                return RedirectToAction("Index");
+            }
+
+            var members = db.ProjectUsers
+                            .Include("User")
+                            .Where(pu => pu.ProjectId == Id)
+                            .Select(pu => new { pu.UserId, pu.User.UserName });
+            var dropDownMembers = new List<SelectListItem>();
+            foreach (var user in members)
+            {
+                if (user.UserId != proj.OrganizerId)
+                {
+                    dropDownMembers.Add(new SelectListItem{ Text = user.UserName, Value = user.UserId });
+                }
+            }
+
+            proj.DropDownMembers = dropDownMembers;
+
+            if (dropDownMembers.Count == 0)
+            {
+                TempData["Message"] = "No more members can be removed (Only the Organizer is left)";
+                TempData["Alert"] = "alert-warning";
+
+                return RedirectToAction("Show", new { Id = proj.Id });
+            }
+
+            return View(proj);
+        }
+
+        // Receives data from form and saves it to the data base
+        [HttpPost]
+        public IActionResult RemoveMember([FromForm] int projId, [FromForm] string userId)
+        {
+            Project? proj = GetProjectById(projId);
+
+            if (proj == null)
+            {
+                TempData["Message"] = "The project does not exist or you don't have privileges to remove a user";
+                TempData["Alert"] = "alert-danger";
+
+                return RedirectToAction("Show", projId);
+            }
+
+            ProjectUser? pu = db.ProjectUsers
+                                .Find(projId, userId);
+
+            if (pu == null)
+            {
+                TempData["Message"] = "User is not member of the Project";
+                TempData["Alert"] = "alert-danger";
+
+                return RedirectToAction("Show", projId);
+            }
+
+            db.ProjectUsers
+                .Remove(pu);
+            db.SaveChanges();
+
+            ApplicationUser user = db.ApplicationUsers
+                                        .Find(userId);
+
+            TempData["Message"] = "Member " + user.UserName + " removed successfully";
+            TempData["Alert"] = "alert-success";
+
+            return RedirectToAction("RemoveMember", projId);
+        }
+
+        // Loads the alert and the message from TempData into ViewBag
+        [NonAction]
+        public void LoadAlert()
+        {
+            if (TempData.ContainsKey("Message"))
+            {
+                ViewBag.Message = TempData["Message"];
+                if (TempData.ContainsKey("Alert"))
+                {
+                    ViewBag.Alert = TempData["Alert"];
+                }
+                else
+                {
+                    ViewBag.Alert = "alert-success";
+                }
+            }
         }
     }
 }

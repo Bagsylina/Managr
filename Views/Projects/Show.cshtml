@@ -4,6 +4,13 @@
     ViewBag.Title = "Show";
 }
 
+@if (ViewBag.Message != null)
+{
+    <div class="alert @ViewBag.Alert p-3 rounded-3 text-center mb-5">
+        @ViewBag.Message
+    </div>
+}
+
 @*
     A prettier Show will be added
 *@
@@ -31,16 +38,37 @@
     </div>
 
 
+    <br />
 
     @if (ViewBag.UserId == @Model.OrganizerId || ViewBag.IsAdmin)
     {
-        <a class="btn btn-outline-primary" href="/Projects/Edit/@Model.Id">
-            <i class="bi bi-gear"></i>
-            Edit project!
-        </a>
-
         TempData["ProjectId"] = Model.Id;
-        <a class="btn btn-outline-success" href="/Tasks/New">New Task</a>
+        <div class="d-flex alert-warning flex-column">
+            <h3 class="text-success">
+                Admin area
+            </h3>
+            <div class="d-flex justify-content-evenly">
+                <a class="btn btn-outline-success" href="/Tasks/New">
+                    <i class="bi bi-clipboard-plus"></i>
+                    New Task
+                </a>
+                
+                <a class="btn btn-outline-primary" href="/Projects/Edit/@Model.Id">
+                    <i class="bi bi-gear"></i>
+                    Edit project!
+                </a>
+
+                <a class="btn btn-outline-success" href="/Projects/AddMember/@Model.Id">
+                    <i class="bi bi-person-plus"></i>
+                    Add member
+                </a>
+
+                <a class="btn btn-outline-danger" href="/Projects/RemoveMember/@Model.Id">
+                    <i class="bi bi-person-dash"></i>
+                    Remove member
+                </a>
+            </div>
+        </div>
         <br />
     }
 </div>
