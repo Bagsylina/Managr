@@ -1,7 +1,7 @@
 ﻿@model Managr.Models.Project
 
 @{
-    ViewBag.Title = "Add Member to Project";
+    ViewBag.Title = "Transfer project ownership";
 }
 
 @if (ViewBag.Message != null)
@@ -12,10 +12,10 @@
 }
 
 <h1>
-    Remove member from Project @Model.Name
+    Transfer project @Model.Name ownership to another member
 </h1>
 
-@using (Html.BeginForm(actionName: "RemoveMember", controllerName: "Projects", method: FormMethod.Post))
+@using (Html.BeginForm(actionName: "TransferOwnership", controllerName: "Projects", method: FormMethod.Post))
 {
     @if (@Model.DropDownMembers != null)
     {
@@ -37,11 +37,15 @@
 
     <br />
 
-    <input type="hidden" name ="projId" value="@Model.Id"/>
+    <input type="hidden" name="projId" value="@Model.Id" />
 
     <br />
 
-    <button type="submit" class="btn btn-success">
-        Save modifications!
-    </button>
+    <div class="alert-danger">
+        WARNING: This action can only be undone by the new owner (or an admin)
+        <br />
+        <button type="submit" class="btn btn-danger">
+            Change ownership!
+        </button>
+    </div>
 }

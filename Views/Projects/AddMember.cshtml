@@ -17,14 +17,23 @@
 
 @using (Html.BeginForm(actionName: "AddMember", controllerName: "Projects", method: FormMethod.Post))
 {
-    <select name="userId">
-        @foreach (var el in @Model.DropDownNonMembers)
-        {
-            <option value="@el.Value">
-                @el.Text
-            </option>
-        }
-    </select>
+    @if (Model.DropDownNonMembers != null)
+    {
+        <select name="userId">
+            @foreach (var el in @Model.DropDownNonMembers)
+            {
+                <option value="@el.Value">
+                    @el.Text
+                </option>
+            }
+        </select>
+    }
+    else
+    {
+        <div class="alert alert-danger">
+            <h2>The page did not load correctly. We suggest contacting an admin.</h2>
+        </div>
+    }
 
     <br />
 

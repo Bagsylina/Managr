@@ -1,0 +1,44 @@
+﻿@model Managr.Models.Project
+
+@{
+    ViewBag.Title = "Admin controlls";
+}
+
+@if (ViewBag.Message != null)
+{
+    <div class="alert @ViewBag.Alert p-3 rounded-3 text-center mb-5">
+        @ViewBag.Message
+    </div>
+}
+
+<h1 class="text-warning">
+    Admin controlls for project @Model.Name
+</h1>
+
+<div class="d-flex justify-content-evenly">
+    <a class="btn btn-outline-success" href="/Tasks/New">
+        <i class="bi bi-clipboard-plus"></i>
+        New Task
+    </a>
+
+    <a class="btn btn-outline-primary" href="/Projects/Edit/@Model.Id">
+        <i class="bi bi-gear"></i>
+        Edit project!
+    </a>
+
+    <a class="btn btn-outline-success" href="/Projects/AddMember/@Model.Id">
+        <i class="bi bi-person-plus"></i>
+        Add member
+    </a>
+
+    <a class="btn btn-outline-danger" href="/Projects/RemoveMember/@Model.Id">
+        <i class="bi bi-person-dash"></i>
+        Remove member
+    </a>
+
+    <a class="btn btn-outline-danger" href="/Projects/TransferOwnership/@Model.Id">
+        <i class="bi bi-person-up"></i>
+        Transfer ownership
+        <i class="bi bi-person-down"></i>
+    </a>
+</div>

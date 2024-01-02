@@ -11,10 +11,6 @@
     </div>
 }
 
-@*
-    A prettier Show will be added
-*@
-
 <h1 class="alert alert-primary">
     @Model.Name
 </h1>
@@ -26,16 +22,25 @@
 <br />
 
 <div>
-    <div class="alert-dark d-flex justify-content-between">
-        <i class="bi bi-gear"></i>
-        This project is maintained by
-        <i class="bi bi-gear"></i>
-    </div>
-    <div class="alert-dark d-flex justify-content-between">
-        <i class="bi bi-person"></i>
-        @Model.Organizer.UserName
-        <i class="bi bi-person"></i>
-    </div>
+    @if (@Model.Organizer != null)
+    {
+        <div class="alert-dark d-flex justify-content-between">
+            <i class="bi bi-gear"></i>
+            This project is maintained by
+            <i class="bi bi-gear"></i>
+        </div>
+        <div class="alert-dark d-flex justify-content-between">
+            <i class="bi bi-person"></i>
+            @Model.Organizer.UserName
+            <i class="bi bi-person"></i>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-danger">
+            <h2>The page did not load correctly. We suggest contacting an admin.</h2>
+        </div>
+    }
 
 
     <br />
@@ -44,30 +49,11 @@
     {
         TempData["ProjectId"] = Model.Id;
         <div class="d-flex alert-warning flex-column">
-            <h3 class="text-success">
-                Admin area
-            </h3>
-            <div class="d-flex justify-content-evenly">
-                <a class="btn btn-outline-success" href="/Tasks/New">
-                    <i class="bi bi-clipboard-plus"></i>
-                    New Task
-                </a>
-                
-                <a class="btn btn-outline-primary" href="/Projects/Edit/@Model.Id">
-                    <i class="bi bi-gear"></i>
-                    Edit project!
-                </a>
-
-                <a class="btn btn-outline-success" href="/Projects/AddMember/@Model.Id">
-                    <i class="bi bi-person-plus"></i>
-                    Add member
-                </a>
-
-                <a class="btn btn-outline-danger" href="/Projects/RemoveMember/@Model.Id">
-                    <i class="bi bi-person-dash"></i>
-                    Remove member
-                </a>
-            </div>
+            <a class="btn btn-warning" href="/Projects/Admin/@Model.Id">
+                <span class="text-success">
+                    Admin area
+                </span>
+            </a>
         </div>
         <br />
     }
