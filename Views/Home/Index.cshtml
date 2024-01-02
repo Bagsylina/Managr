@@ -1,8 +1,66 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    ViewData["Title"] = "Managr";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+@if (SignInManager.IsSignedIn(User))
+{
+    <h2>
+        Welcome back to Managr, @User.Identity?.Name!
+    </h2>
+}
+else
+{
+    <h2>
+        Welcome to Managr!
+    </h2>
+}
+
+<br />
+<br />
+
+<p>
+    Managr is a task management app developped by Anghel Fabian and Ilie Dumitru for their web development class. It has
+    all the features needed for a task management app, namely:
+    <ul>
+        <li>
+            <i class="bi bi-tools"></i>
+            Making and managing your own project
+        </li>
+        <li>
+            <i class="bi bi-person-gear"></i>
+            Managing the team working on your project
+        </li>
+        <li>
+            <i class="bi bi-list-task"></i>
+            Managing the tasks needed for your project
+        </li>
+    </ul>
+</p>
+
+<br />
+<br />
+
+@if (SignInManager.IsSignedIn(User))
+{
+    <a class="btn btn-success" href="/Projects/New">
+        Start a new project!
+    </a>
+
+    <br />
+    <br />
+    <br />
+
+    <a class="btn btn-success" href="/Projects/Index">
+        Your projects
+    </a>
+}
+else
+{
+    <p>
+        Start using Managr today and enjoy a productivity boost for your projects by <a asp-area="Identity" asp-page="/Account/Register">registering</a>. Alternatively you can <a asp-area="Identity" asp-page="/Account/Login">login</a> if you already have an account.
+    </p>
+}
