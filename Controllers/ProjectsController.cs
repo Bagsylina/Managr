@@ -95,8 +95,30 @@ namespace Managr.Controllers
                                  .OrderBy(t => (t.Status == "Completed"));
                 }
 
+                var yourTasks = from task in tasks
+                                where (from ut in db.UserTasks
+                                       where ut.UserId == _userManager.GetUserId(User)
+                                       select ut.TaskId)
+                                       .Contains(task.Id)
+                                orderby (task.Status == "Completed")
+                                select task;
+
+                var otherTasks = from task in tasks
+                                 where !(from ut in db.UserTasks
+                                        where ut.UserId == _userManager.GetUserId(User)
+                                        select ut.TaskId)
+                                        .Contains(task.Id)
+                                 orderby (task.Status == "Completed")
+                                 select task;
+
                 ViewBag.SearchString = search;
                 ViewBag.Tasks = tasks;
+
+                ViewBag.YourTasks = yourTasks;
+                ViewBag.OtherTasks = otherTasks;
+
+                ViewBag.ViewYourTasks = (yourTasks.Count() > 0);
+                ViewBag.ViewOtherTasks = (otherTasks.Count() > 0);
 
                 if (search != "")
                 {

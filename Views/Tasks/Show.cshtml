@@ -7,14 +7,25 @@
 
 <div class="d-flex justify-content-center">
 
-    <a class="btn btn-outline-success" href="/Projects/Show/@Model.ProjectId">Show Project</a>
-    <br />
-    <a class="btn btn-outline-success" href="/Tasks/New">New Task</a>
+    <a class="btn btn-outline-dark" href="/Projects/Show/@Model.ProjectId">Show Project</a>
     <br />
 
 </div>
 
 <br/>
+
+@if (Model.Status == "Not Started")
+{
+    ViewBag.AlertStyle = "alert-danger";
+}
+@if (Model.Status == "In Progress" || Model.Status == "On Hold")
+{
+    ViewBag.AlertStyle = "alert-warning";
+}
+@if (Model.Status == "Completed")
+{
+    ViewBag.AlertStyle = "alert-success";
+}
 
 <div class="container">
     <div class="row">
@@ -22,26 +33,19 @@
             <div class="card">
                 <div class="card-body">
 
-                    <h3 class="card-title alert-primary py-3 px-3 rounded-2">@Model.Title</h3>
+                    <h3 class="card-title @ViewBag.AlertStyle py-3 px-3 rounded-2">@Model.Title</h3>
+                    <br/>
                     <div class="card-text">@Model.Description</div>
-                    <embed src="@Model.Multimedia" style="max-height: 500px; max-width: 500px"/>
+                    <br />
+                    <div class="text-center">
+                        <embed src="@Model.Multimedia" style="max-height: 700px; min-height: 500px; min-width: 500px;"/>
+                    </div>
+                    <br />
                     <div class="d-flex justify-content-between flex-row mt-5">
 
-                        @if (Model.Status == "Not Started")
-                        {
-                            <span class="alert-danger px-1 align-content-center">@Model.Status</span>
-                        }
-                        @if (Model.Status == "In Progress" || Model.Status == "On Hold")
-                        {
-                            <span class="alert-warning px-1 align-content-center">@Model.Status</span>
-                        }
-                        @if (Model.Status == "Completed")
-                        {
-                            <span class="alert-success px-1 align-content-center">@Model.Status</span>
-                        }
-
-                        <span class="alert-info px-1 align-content-center">@Model.StartDate</span>
-                        <span class="alert-danger px-1 align-content-center">@Model.Deadline</span>
+                        <span class="@ViewBag.AlertStyle px-1 align-content-center">@Model.Status</span>
+                        <span class="alert-info px-1 align-content-center">Start Date: @Model.StartDate</span>
+                        <span class="alert-danger px-1 align-content-center">Deadline: @Model.Deadline</span>
 
                     </div>
 

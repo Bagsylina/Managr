@@ -146,6 +146,21 @@ namespace Managr.Data.Migrations
                     b.ToTable("Projects");
                 });
 
+            modelBuilder.Entity("Managr.Models.ProjectUser", b =>
+                {
+                    b.Property<int?>("ProjectId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("ProjectId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ProjectUsers");
+                });
+
             modelBuilder.Entity("Managr.Models.Task", b =>
                 {
                     b.Property<int>("Id")
@@ -369,6 +384,25 @@ namespace Managr.Data.Migrations
                     b.Navigation("Organizer");
                 });
 
+            modelBuilder.Entity("Managr.Models.ProjectUser", b =>
+                {
+                    b.HasOne("Managr.Models.Project", "Project")
+                        .WithMany("ProjectUsers")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Managr.Models.ApplicationUser", "User")
+                        .WithMany("ProjectUsers")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Project");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Managr.Models.Task", b =>
                 {
                     b.HasOne("Managr.Models.Project", "Project")
@@ -452,6 +486,8 @@ namespace Managr.Data.Migrations
                 {
                     b.Navigation("Comments");
 
+                    b.Navigation("ProjectUsers");
+
                     b.Navigation("Projects");
 
                     b.Navigation("UserTasks");
@@ -459,6 +495,8 @@ namespace Managr.Data.Migrations
 
             modelBuilder.Entity("Managr.Models.Project", b =>
                 {
+                    b.Navigation("ProjectUsers");
+
                     b.Navigation("Tasks");
                 });
 

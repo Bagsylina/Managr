@@ -70,35 +70,90 @@
 
 <br />
 
-@foreach (var task in ViewBag.Tasks)
+@if (ViewBag.ViewYourTasks)
 {
-    <div class="card">
-        <div class="card-body">
-            <h3 class="card-title alert-success py-3 px-3 rounded-2">@task.Title</h3>
-            @*<p class="card-text">@task.Description</p>*@
+    <div class="container">
+        <h3>Your Tasks</h3>
+        <hr />
+        @foreach (var task in ViewBag.YourTasks)
+        {
+            @if (task.Status == "Not Started")
+            {
+                ViewBag.CardStyle = "border-danger";
+                ViewBag.AlertStyle = "alert-danger";
+            }
+            @if (task.Status == "In Progress" || task.Status == "On Hold")
+            {
+                ViewBag.CardStyle = "border-warning";
+                ViewBag.AlertStyle = "alert-warning";
+            }
+            @if (task.Status == "Completed")
+            {
+                ViewBag.CardStyle = "border-success";
+                ViewBag.AlertStyle = "alert-success";
+            }
 
-            <div class="d-flex justify-content-between flex-row mt-5">
+            <div class="card @ViewBag.CardStyle">
+                <div class="card-body @ViewBag.AlertStyle">
+                    <h3 class="card-title py-1 px-1 rounded-1 h4">@task.Title</h3>
 
-                @if (task.Status == "Not Started")
-                {
-                    <span class="alert-danger px-1 align-content-center">@task.Status</span>
-                }
-                @if (task.Status == "In Progress" || task.Status == "On Hold")
-                {
-                    <span class="alert-warning px-1 align-content-center">@task.Status</span>
-                }
-                @if (task.Status == "Completed")
-                {
-                    <span class="alert-success px-1 align-content-center">@task.Status</span>
-                }
+                    <div class="d-flex justify-content-between flex-row mt-5">
 
-                <span class="alert-info px-1 align-content-center">@task.StartDate</span>
-                <span class="alert-danger px-1 align-content-center">@task.Deadline</span>
+                        <span class="px-1 align-content-center">Status: @task.Status</span>
 
-                <a href="/Tasks/Show/@task.Id" class="btn btn-outline-success">Show Task</a>
+                        <span class="px-1 align-content-center">Deadline: @task.Deadline</span>
 
+                        <a href="/Tasks/Show/@task.Id" class="btn btn-outline-dark stretched-link">Show Task</a>
+
+                    </div>
+                </div>
             </div>
-        </div>
+            <br/>
+        }
     </div>
-    <br/>
+
+    <br />
+}
+
+@if (ViewBag.ViewOtherTasks)
+{
+    <div class="container">
+        <h3>Other Tasks</h3>
+        <hr />
+        @foreach (var task in ViewBag.OtherTasks)
+        {
+            @if (task.Status == "Not Started")
+            {
+                ViewBag.CardStyle = "border-danger";
+                ViewBag.AlertStyle = "alert-danger";
+            }
+            @if (task.Status == "In Progress" || task.Status == "On Hold")
+            {
+                ViewBag.CardStyle = "border-warning";
+                ViewBag.AlertStyle = "alert-warning";
+            }
+            @if (task.Status == "Completed")
+            {
+                ViewBag.CardStyle = "border-success";
+                ViewBag.AlertStyle = "alert-success";
+            }
+
+            <div class="card @ViewBag.CardStyle">
+                <div class="card-body @ViewBag.AlertStyle">
+                    <h3 class="card-title py-1 px-1 rounded-1 h4">@task.Title</h3>
+
+                    <div class="d-flex justify-content-between flex-row mt-5">
+
+                        <span class="px-1 align-content-center">Status: @task.Status</span>
+
+                        <span class="px-1 align-content-center">Deadline: @task.Deadline</span>
+
+                        <a href="/Tasks/Show/@task.Id" class="btn btn-outline-dark stretched-link">Show Task</a>
+
+                    </div>
+                </div>
+            </div>
+            <br />
+        }
+    </div>
 }

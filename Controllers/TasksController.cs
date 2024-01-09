@@ -384,12 +384,18 @@ namespace Managr.Controllers
             {
                 //users not assigned to the task
                 var usersToAdd = from au in db.ApplicationUsers
-                                 where !(from ut in db.UserTasks
-                                         where ut.TaskId == task.Id
-                                         select ut.UserId)
-                                         .Contains(au.Id)
-                                 orderby au.UserName ascending
+                                 where (from pu in db.ProjectUsers
+                                        where pu.ProjectId == task.ProjectId
+                                        select pu.UserId)
+                                        .Contains(au.Id)
                                  select au;
+                 usersToAdd = from au in usersToAdd
+                              where !(from ut in db.UserTasks
+                                      where ut.TaskId == task.Id
+                                      select ut.UserId)
+                                      .Contains(au.Id)
+                              orderby au.UserName ascending
+                              select au;
 
                 var search = "";
 
