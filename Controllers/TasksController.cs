@@ -96,7 +96,7 @@ namespace Managr.Controllers
                     TempData["Message"] = "Task " + task.Title + " was added";
                     TempData["Alert"] = "alert-success";
 
-                    return Redirect("/Projects/Show/" + task.ProjectId);
+                    return Redirect("/Projects/Admin/" + task.ProjectId);
                 }
 
                 else

@@ -4,8 +4,15 @@
     ViewBag.Title = "Admin controlls";
 }
 
+<div>
+    <a class="btn btn-secondary" href="/Projects/Show/@Model.Id">
+        <i class="bi-arrow-left"></i> Go back
+    </a>
+</div>
+
 @if (ViewBag.Message != null)
 {
+    <br />
     <div class="alert @ViewBag.Alert p-3 rounded-3 text-center mb-5">
         @ViewBag.Message
     </div>
@@ -34,7 +41,7 @@
 
         <a class="btn btn-outline-primary" href="/Projects/Edit/@Model.Id">
             <i class="bi bi-gear"></i>
-            Edit project!
+            Edit project
         </a>
 
         <a class="btn btn-outline-success" href="/Projects/AddMember/@Model.Id">

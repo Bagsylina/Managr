@@ -12,6 +12,7 @@ namespace Managr.Controllers
     public class ProjectsController : Controller
     {
         const int PROJECTS_PER_PAGE = 5;
+        const int TASKS_PER_PAGE = 5;
 
         // Database
         private readonly ApplicationDbContext db;
@@ -86,6 +87,7 @@ namespace Managr.Controllers
                                 .Where(pu => pu.ProjectId == Id)
                                 .Select(pu => pu.UserId);
 
+                
                 proj = db.Projects
                          .Include("Organizer")
                          .Include("ProjectUsers")
@@ -102,7 +104,49 @@ namespace Managr.Controllers
                               .OrderBy(t => (t.Status == "Completed"));
 
                 var search = "";
+                int page = 0;
+                string filter = "";
 
+                try
+                {
+                    page = Int32.Parse(HttpContext.Request.Query["page"]);
+                }
+                catch(Exception) { }
+
+                if (Convert.ToString(HttpContext.Request.Query["filter"]) != null)
+                {
+                    filter = Convert.ToString(HttpContext.Request.Query["filter"]).Trim();
+
+                    if (filter != "all")
+                    {
+                        if (filter == "my")
+                        {
+                            tasks = from task in tasks
+                                    where (from ut in db.UserTasks
+                                           where ut.UserId == _userManager.GetUserId(User)
+                                           select ut.TaskId)
+                                           .Contains(task.Id)
+                                    orderby (task.Status == "Completed")
+                                    select task;
+                        }
+                        else if(filter == "others")
+                        {
+                            tasks = from task in tasks
+                                    where !(from ut in db.UserTasks
+                                           where ut.UserId == _userManager.GetUserId(User)
+                                           select ut.TaskId)
+                                           .Contains(task.Id)
+                                    orderby (task.Status == "Completed")
+                                    select task;
+                        }
+                        else
+                        {
+                            ViewBag.Alert = "alert-danger";
+                            ViewBag.Message = "Filter type not implemented. Contact an admin";
+                        }
+                    }
+                }
+                
                 if (Convert.ToString(HttpContext.Request.Query["search"]) != null)
                 {
                     search = Convert.ToString(HttpContext.Request.Query["search"]).Trim();
@@ -111,7 +155,9 @@ namespace Managr.Controllers
                                  .OrderBy(t => (t.Status == "Completed"));
                 }
 
-                var yourTasks = from task in tasks
+
+
+                /*var yourTasks = from task in tasks
                                 where (from ut in db.UserTasks
                                        where ut.UserId == _userManager.GetUserId(User)
                                        select ut.TaskId)
@@ -125,22 +171,16 @@ namespace Managr.Controllers
                                         select ut.TaskId)
                                         .Contains(task.Id)
                                  orderby (task.Status == "Completed")
-                                 select task;
+                                 select task;*/
 
-                ViewBag.SearchString = search;
-                ViewBag.Tasks = tasks;
+                int cntPages = tasks.Count() / TASKS_PER_PAGE + (tasks.Count() % TASKS_PER_PAGE > 0 ? 1 : 0);
 
-                ViewBag.YourTasks = yourTasks;
-                ViewBag.OtherTasks = otherTasks;
+                ViewBag.SearchString = (search == "" ? null : search);
+                ViewBag.Tasks = tasks.Skip(page * TASKS_PER_PAGE).Take(TASKS_PER_PAGE);
 
-                ViewBag.ViewYourTasks = (yourTasks.Count() > 0);
-                ViewBag.ViewOtherTasks = (otherTasks.Count() > 0);
-
-                if (search != "")
-                {
-                    ViewBag.PaginationBaseUrl = "/Projects/Show/" + Id + "/?search=" + search;
-                }
-
+                ViewBag.Filter = (filter == "" ? null : filter);
+                ViewBag.Page = page;
+                ViewBag.CntPages = cntPages;
             }
             catch (Exception)
             {

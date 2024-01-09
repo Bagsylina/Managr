@@ -48,7 +48,7 @@
     @if (ViewBag.UserId == @Model.OrganizerId || ViewBag.IsAdmin)
     {
         TempData["ProjectId"] = Model.Id;
-        <div class="d-flex alert-warning flex-column">
+        <div class="d-flex justify-content-center">
             <a class="btn btn-warning" href="/Projects/Admin/@Model.Id">
                 <span class="text-success">
                     Admin area
@@ -63,6 +63,10 @@
 
 <form method="GET">
     <div class="input-group mb-3">
+        @if (ViewBag.Filter != null)
+        {
+            <input type="hidden" name="filter" value="@ViewBag.Filter" />
+        }
         <input type="text" class="form-control" placeholder="Search topics or keywords" name="search" value="@ViewBag.SearchString">
         <button class="btn btn-outline-success" type="submit">Search Task</button>
     </div>
@@ -70,90 +74,111 @@
 
 <br />
 
-@if (ViewBag.ViewYourTasks)
-{
-    <div class="container">
-        <h3>Your Tasks</h3>
-        <hr />
-        @foreach (var task in ViewBag.YourTasks)
-        {
-            @if (task.Status == "Not Started")
+<div class="d-flex">
+    <div style="margin-right: 5pt">Filter tasks:</div>
+    <div>
+        @{
+            var filters = new string[3];
+            filters[0] = "all";
+            filters[1] = "my";
+            filters[2] = "others";
+
+            var search = "";
+            if (ViewBag.SearchString != null)
             {
-                ViewBag.CardStyle = "border-danger";
-                ViewBag.AlertStyle = "alert-danger";
-            }
-            @if (task.Status == "In Progress" || task.Status == "On Hold")
-            {
-                ViewBag.CardStyle = "border-warning";
-                ViewBag.AlertStyle = "alert-warning";
-            }
-            @if (task.Status == "Completed")
-            {
-                ViewBag.CardStyle = "border-success";
-                ViewBag.AlertStyle = "alert-success";
+                search = "search=" + ViewBag.SearchString + "&";
             }
 
-            <div class="card @ViewBag.CardStyle">
-                <div class="card-body @ViewBag.AlertStyle">
-                    <h3 class="card-title py-1 px-1 rounded-1 h4">@task.Title</h3>
+            foreach (var filter in filters)
+            {
+                var Filter = (char.ToUpper(filter[0])).ToString();
+                for (int i = 1; i < filter.Count(); ++i)
+                {
+                    Filter += filter[i];
+                }
 
-                    <div class="d-flex justify-content-between flex-row mt-5">
+                var checkType = "circle";
+                if (ViewBag.Filter == filter)
+                {
+                    checkType = "check-circle";
+                }
 
-                        <span class="px-1 align-content-center">Status: @task.Status</span>
-
-                        <span class="px-1 align-content-center">Deadline: @task.Deadline</span>
-
-                        <a href="/Tasks/Show/@task.Id" class="btn btn-outline-dark stretched-link">Show Task</a>
-
-                    </div>
-                </div>
-            </div>
-            <br/>
+                <a href="/Projects/Show/@(Model.Id)?@(search)filter=@(filter)" style="font-size: 11pt; color: black; text-decoration: none;"><i class="bi-@(checkType)"></i> @(Filter) tasks</a>
+                <br />
+            }
         }
     </div>
+</div>
 
-    <br />
+<br />
+
+@if (ViewBag.CntPages > 1)
+{
+    const int ExtraPages = 3;
+    string search_filter = (ViewBag.SearchString != null ? "search=" + ViewBag.SearchString + "&" : "") + (ViewBag.Filter != null ? "filter=" + ViewBag.Filter + "&" : "");
+    int page = ViewBag.Page;
+
+    <a href="/Projects/Show/@Model.Id?@(search_filter)page=0" class="btn btn-primary">
+        <i class="bi-chevron-double-left"></i>
+    </a>
+
+    for (int i = Math.Max(0, page - ExtraPages); i < page; ++i)
+    {
+        <a href="/Projects/Show/@Model.Id?@(search_filter)page=@i" class="btn btn-secondary">
+            @(i + 1)
+        </a>
+    }
+    <span class="btn btn-primary">
+        @(page + 1)
+    </span>
+    for (int i = page + 1; i <= page + ExtraPages && i < ViewBag.CntPages; ++i)
+    {
+        <a href="/Projects/Show/@Model.Id?@(search_filter)page=@i" class="btn btn-secondary">
+            @(i + 1)
+        </a>
+    }
+
+    <a href="/Projects/Show/@Model.Id?@(search_filter)page=@(ViewBag.CntPages - 1)" class="btn btn-primary">
+        <i class="bi-chevron-double-right"></i>
+    </a>
 }
 
-@if (ViewBag.ViewOtherTasks)
-{
-    <div class="container">
-        <h3>Other Tasks</h3>
-        <hr />
-        @foreach (var task in ViewBag.OtherTasks)
+<div class="container">
+    <h3>Tasks</h3>
+    <hr />
+    @foreach (var task in ViewBag.Tasks)
+    {
+        @if (task.Status == "Not Started")
         {
-            @if (task.Status == "Not Started")
-            {
-                ViewBag.CardStyle = "border-danger";
-                ViewBag.AlertStyle = "alert-danger";
-            }
-            @if (task.Status == "In Progress" || task.Status == "On Hold")
-            {
-                ViewBag.CardStyle = "border-warning";
-                ViewBag.AlertStyle = "alert-warning";
-            }
-            @if (task.Status == "Completed")
-            {
-                ViewBag.CardStyle = "border-success";
-                ViewBag.AlertStyle = "alert-success";
-            }
+            ViewBag.CardStyle = "border-danger";
+            ViewBag.AlertStyle = "alert-danger";
+        }
+        @if (task.Status == "In Progress" || task.Status == "On Hold")
+        {
+            ViewBag.CardStyle = "border-warning";
+            ViewBag.AlertStyle = "alert-warning";
+        }
+        @if (task.Status == "Completed")
+        {
+            ViewBag.CardStyle = "border-success";
+            ViewBag.AlertStyle = "alert-success";
+        }
 
-            <div class="card @ViewBag.CardStyle">
-                <div class="card-body @ViewBag.AlertStyle">
-                    <h3 class="card-title py-1 px-1 rounded-1 h4">@task.Title</h3>
+        <div class="card @ViewBag.CardStyle">
+            <div class="card-body @ViewBag.AlertStyle">
+                <h3 class="card-title py-1 px-1 rounded-1 h4">@task.Title</h3>
 
-                    <div class="d-flex justify-content-between flex-row mt-5">
+                <div class="d-flex justify-content-between flex-row mt-5">
 
-                        <span class="px-1 align-content-center">Status: @task.Status</span>
+                    <span class="px-1 align-content-center">Status: @task.Status</span>
 
-                        <span class="px-1 align-content-center">Deadline: @task.Deadline</span>
+                    <span class="px-1 align-content-center">Deadline: @task.Deadline</span>
 
-                        <a href="/Tasks/Show/@task.Id" class="btn btn-outline-dark stretched-link">Show Task</a>
+                    <a href="/Tasks/Show/@task.Id" class="btn btn-outline-dark stretched-link">Show Task</a>
 
-                    </div>
                 </div>
             </div>
-            <br />
-        }
-    </div>
-}
+        </div>
+        <br />
+    }
+</div>
