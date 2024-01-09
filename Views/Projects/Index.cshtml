@@ -11,6 +11,44 @@
 
 <h1>Projects</h1>
 
+<a class="btn btn-outline-success" href="/Projects/New">
+    <i class="bi bi-tools"></i>
+    Start a project!
+</a>
+
+<form method="GET">
+    <div class="input-group mb-3">
+        <input type="text" class="form-control" placeholder="Search in project name" name="search" value="@ViewBag.SearchString">
+        <button class="btn btn-outline-success" type="submit">Search Project</button>
+    </div>
+</form>
+
+<div>
+    @if (ViewBag.CntPages > 1)
+    {
+        string searchQuery = "";
+        if (ViewBag.SearchString != null)
+        {
+            searchQuery = "search=" + ViewBag.SearchString + "&";
+        }
+        for (int i = 0; i < ViewBag.CntPages; ++i)
+        {
+            if (i != ViewBag.PageId)
+            {
+                <a href="/Projects/Index?@(searchQuery)page=@(i)" class="btn btn-secondary">
+                    @(i + 1)
+                </a>
+            }
+            else
+            {
+                <span class="btn btn-primary">
+                    @(i + 1)
+                </span>
+            }
+        }
+    }
+</div>
+
 @foreach (Managr.Models.Project proj in ViewBag.Proiecte)
 {
     <div class="card">
@@ -67,8 +105,3 @@
 
     <br />
 }
-
-<a class="btn btn-outline-success" href="/Projects/New">
-    <i class="bi bi-tools"></i>
-    Start a project!
-</a>

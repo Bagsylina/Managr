@@ -11,6 +11,8 @@ namespace Managr.Controllers
     [Authorize]
     public class ProjectsController : Controller
     {
+        const int PROJECTS_PER_PAGE = 5;
+
         // Database
         private readonly ApplicationDbContext db;
 
@@ -40,6 +42,15 @@ namespace Managr.Controllers
         // All the projects that a user has access to
         public IActionResult Index()
         {
+            string? searchStr = Convert.ToString(HttpContext.Request.Query["search"]);
+            int pageId = 0;
+
+            try
+            {
+                 pageId = Int32.Parse(Convert.ToString(HttpContext.Request.Query["page"]));
+            }
+            catch (Exception) { }
+            
             var Conns = db.ProjectUsers
                           .Where(pu => pu.UserId == _userManager.GetUserId(User)
                                        || User.IsInRole("Admin"))
@@ -48,10 +59,15 @@ namespace Managr.Controllers
 
             var Proiecte = db.Projects
                              .Include("Organizer")
-                             .Where(proj => Conns.Contains(proj.Id));
+                             .Where(proj => Conns.Contains(proj.Id)
+                                            && (searchStr == null || proj.Name.Contains(searchStr)))
+                             .OrderBy(proj => proj.Name);
 
-            ViewBag.Proiecte=Proiecte;
-            
+            ViewBag.Proiecte = Proiecte.Skip(pageId * PROJECTS_PER_PAGE).Take(PROJECTS_PER_PAGE);
+            ViewBag.PageId = pageId;
+            ViewBag.CntPages = Proiecte.Count() / PROJECTS_PER_PAGE + (Proiecte.Count() % PROJECTS_PER_PAGE > 0 ? 1 : 0);
+            ViewBag.SearchString = searchStr;
+
             LoadAlert();
 
             return View();
