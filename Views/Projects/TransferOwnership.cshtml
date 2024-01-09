@@ -11,41 +11,67 @@
     </div>
 }
 
-<h1>
+<h1 style="text-align: center">
     Transfer project @Model.Name ownership to another member
 </h1>
 
-@using (Html.BeginForm(actionName: "TransferOwnership", controllerName: "Projects", method: FormMethod.Post))
+<div class="d-flex justify-content-center">
+    <span style="width: 50%">
+        @Model.Description
+    </span>
+</div>
+
+<br />
+
+<div class="d-flex justify-content-center">
+    <a href="/Projects/Admin/@Model.Id" class="btn btn-success">
+        Cancel
+    </a>
+</div>
+
+<br />
+
+@if (@Model.Members != null)
 {
-    @if (@Model.DropDownMembers != null)
-    {
-        <select name="userId">
-            @foreach (var el in @Model.DropDownMembers)
-            {
-                <option value="@el.Value">
-                    @el.Text
-                </option>
-            }
-        </select>
-    }
-    else
-    {
-        <div class="alert alert-danger">
-            <h2>The page did not load correctly. We suggest contacting an admin.</h2>
+    <br />
+
+    <div class="d-flex justify-content-center">
+        <div class="alert-danger" style="width: 50%; text-align: center">
+            <br />
+            WARNING: This action can only be undone by the new owner (or an admin)!
+            <br />
+            <br />
         </div>
+    </div>
+
+    <br />
+
+    <hr />
+
+    @foreach (var usr in @Model.Members)
+    {
+        <div class="container">
+            <div class="row">
+                <div class="col-md-2"></div>
+                <div class="col-md-8">
+                    <div class="d-flex justify-content-between flex-row">
+                        <p>@usr.UserName</p>
+                        <form method="post" asp-controller="Projects" asp-action="TransferOwnership">
+                            <input type="hidden" name="ProjectId" value="@Model.Id" />
+                            <input type="hidden" name="UserId" value="@usr.Id" />
+                            <button class="btn btn-outline-danger" type="submit"><i class="bi bi-person-up"></i> Transfer ownership <i class="bi bi-person-down"></i></button>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-md-2"></div>
+            </div>
+        </div>
+        <hr />
     }
-
-    <br />
-
-    <input type="hidden" name="projId" value="@Model.Id" />
-
-    <br />
-
-    <div class="alert-danger">
-        WARNING: This action can only be undone by the new owner (or an admin)
-        <br />
-        <button type="submit" class="btn btn-danger">
-            Change ownership!
-        </button>
+}
+else
+{
+    <div class="alert alert-danger">
+        <h2>The page did not load correctly. We suggest contacting an admin.</h2>
     </div>
 }

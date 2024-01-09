@@ -11,14 +11,19 @@
 
 <h1>Projects</h1>
 
+<br />
+
 <a class="btn btn-outline-success" href="/Projects/New">
     <i class="bi bi-tools"></i>
     Start a project!
 </a>
 
+<br />
+<br />
+
 <form method="GET">
     <div class="input-group mb-3">
-        <input type="text" class="form-control" placeholder="Search in project name" name="search" value="@ViewBag.SearchString">
+        <input type="text" class="form-control" placeholder="Search for project" name="search" value="@ViewBag.SearchString">
         <button class="btn btn-outline-success" type="submit">Search Project</button>
     </div>
 </form>
@@ -48,6 +53,8 @@
         }
     }
 </div>
+
+<br />  
 
 @foreach (Managr.Models.Project proj in ViewBag.Proiecte)
 {

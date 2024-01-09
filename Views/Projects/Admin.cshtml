@@ -11,34 +11,46 @@
     </div>
 }
 
-<h1 class="text-warning">
+<h1 style="text-align: center">
     Admin controlls for project @Model.Name
 </h1>
 
-<div class="d-flex justify-content-evenly">
-    <a class="btn btn-outline-success" href="/Tasks/New">
-        <i class="bi bi-clipboard-plus"></i>
-        New Task
-    </a>
+<br />
 
-    <a class="btn btn-outline-primary" href="/Projects/Edit/@Model.Id">
-        <i class="bi bi-gear"></i>
-        Edit project!
-    </a>
+<div class="d-flex justify-content-center">
+    <span style="width: 50%">
+        @Model.Description
+    </span>
+</div>
 
-    <a class="btn btn-outline-success" href="/Projects/AddMember/@Model.Id">
-        <i class="bi bi-person-plus"></i>
-        Add member
-    </a>
+<br />
 
-    <a class="btn btn-outline-danger" href="/Projects/RemoveMember/@Model.Id">
-        <i class="bi bi-person-dash"></i>
-        Remove member
-    </a>
+<div class="d-flex justify-content-center">
+    <div class="d-flex justify-content-evenly" style="width: 75%">
+        <a class="btn btn-outline-success" href="/Tasks/New">
+            <i class="bi bi-clipboard-plus"></i>
+            New Task
+        </a>
 
-    <a class="btn btn-outline-danger" href="/Projects/TransferOwnership/@Model.Id">
-        <i class="bi bi-person-up"></i>
-        Transfer ownership
-        <i class="bi bi-person-down"></i>
-    </a>
+        <a class="btn btn-outline-primary" href="/Projects/Edit/@Model.Id">
+            <i class="bi bi-gear"></i>
+            Edit project!
+        </a>
+
+        <a class="btn btn-outline-success" href="/Projects/AddMember/@Model.Id">
+            <i class="bi bi-person-plus"></i>
+            Add member
+        </a>
+
+        <a class="btn btn-outline-danger" href="/Projects/RemoveMember/@Model.Id">
+            <i class="bi bi-person-dash"></i>
+            Remove member
+        </a>
+
+        <a class="btn btn-outline-danger" href="/Projects/TransferOwnership/@Model.Id">
+            <i class="bi bi-person-up"></i>
+            Transfer ownership
+            <i class="bi bi-person-down"></i>
+        </a>
+    </div>
 </div>

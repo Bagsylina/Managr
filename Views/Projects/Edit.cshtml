@@ -33,10 +33,11 @@
         @Html.ValidationMessage("Description", null, new { @class = "text-danger" })
         <br />
 
-        // TODO: Allow the change of project ownership
-
         <br />
 
-        <button class="btn btn-success" type="submit">Save Project!</button>
+        <div class="d-flex justify-content-between" style="width:25%">
+            <a href="/Projects/Admin/@Model.Id" class="btn btn-danger">Cancel</a>
+            <button class="btn btn-success" type="submit">Save Project!</button>
+        </div>
     }
 </div>

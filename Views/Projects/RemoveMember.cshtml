@@ -11,37 +11,54 @@
     </div>
 }
 
-<h1>
+<h1 style="text-align: center">
     Remove member from Project @Model.Name
 </h1>
 
-@using (Html.BeginForm(actionName: "RemoveMember", controllerName: "Projects", method: FormMethod.Post))
+<div class="d-flex justify-content-center">
+    <span style="width: 50%">
+        @Model.Description
+    </span>
+</div>
+
+<br />
+
+<div class="d-flex justify-content-center">
+    <a href="/Projects/Admin/@Model.Id" class="btn btn-success">
+        Go Back
+    </a>
+</div>
+
+<br />
+
+@if (Model.Members != null)
 {
-    @if (@Model.DropDownMembers != null)
+    <hr />
+
+    @foreach (var usr in @Model.Members)
     {
-        <select name="userId">
-            @foreach (var el in @Model.DropDownMembers)
-            {
-                <option value="@el.Value">
-                    @el.Text
-                </option>
-            }
-        </select>
-    }
-    else
-    {
-        <div class="alert alert-danger">
-            <h2>The page did not load correctly. We suggest contacting an admin.</h2>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-2"></div>
+                <div class="col-md-8">
+                    <div class="d-flex justify-content-between flex-row">
+                        <p>@usr.UserName</p>
+                        <form method="post" asp-controller="Projects" asp-action="RemoveMember">
+                            <input type="hidden" name="ProjectId" value="@Model.Id" />
+                            <input type="hidden" name="UserId" value="@usr.Id" />
+                            <button class="btn btn-outline-danger" type="submit"><i class="bi bi-person-dash"></i> Remove member </button>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-md-2"></div>
+            </div>
         </div>
+        <hr />
     }
-
-    <br />
-
-    <input type="hidden" name ="projId" value="@Model.Id"/>
-
-    <br />
-
-    <button type="submit" class="btn btn-success">
-        Save modifications!
-    </button>
+}
+else
+{
+    <div class="alert alert-danger">
+        <h2>The page did not load correctly. We suggest contacting an admin.</h2>
+    </div>
 }

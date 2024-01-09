@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Managr.Models
@@ -37,10 +36,10 @@ namespace Managr.Models
 
         // Used for AddMember drop down
         [NotMapped]
-        public IEnumerable<SelectListItem>? DropDownMembers { get; set; }
+        public IEnumerable<ApplicationUser>? Members { get; set; }
 
         // Used for RemoveMember drop down
         [NotMapped]
-        public IEnumerable<SelectListItem>? DropDownNonMembers { get; set; }
+        public IEnumerable<ApplicationUser>? NonMembers { get; set; }
     }
 }

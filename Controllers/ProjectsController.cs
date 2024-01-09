@@ -60,7 +60,7 @@ namespace Managr.Controllers
             var Proiecte = db.Projects
                              .Include("Organizer")
                              .Where(proj => Conns.Contains(proj.Id)
-                                            && (searchStr == null || proj.Name.Contains(searchStr)))
+                                            && (searchStr == null || proj.Name.Contains(searchStr) || proj.Description.Contains(searchStr)))
                              .OrderBy(proj => proj.Name);
 
             ViewBag.Proiecte = Proiecte.Skip(pageId * PROJECTS_PER_PAGE).Take(PROJECTS_PER_PAGE);
@@ -338,19 +338,18 @@ namespace Managr.Controllers
             var members = db.ProjectUsers
                             .Where(pu => pu.ProjectId == Id)
                             .Select(pu => pu.UserId);
-            var dropDownNonMembers = new List<SelectListItem>();
-            foreach (var user in db.Users
-                                   .Select(u => new {u.Id, u.UserName}))
+            var nonMembers = new List<ApplicationUser>();
+            foreach (var user in db.Users)
             {
                 if (!members.Contains(user.Id))
                 {
-                    dropDownNonMembers.Add(new SelectListItem{ Text = user.UserName, Value = user.Id });
+                    nonMembers.Add(user);
                 }
             }
 
-            proj.DropDownNonMembers = dropDownNonMembers;
+            proj.NonMembers = nonMembers;
 
-            if (dropDownNonMembers.Count == 0)
+            if (nonMembers.Count == 0)
             {
                 TempData["Message"] = "No more members can be added (All the users are also members)";
                 TempData["Alert"] = "alert-warning";
@@ -361,27 +360,27 @@ namespace Managr.Controllers
             return View(proj);
         }
 
-        // Receives data from form and saves it to the data base
+        // Receives data and adds user to the database
         [HttpPost]
-        public IActionResult AddMember([FromForm] int projId, [FromForm] string userId)
+        public IActionResult AddMember(int ProjectId, string UserId)
         {
             ProjectUser pu = new ProjectUser();
-            pu.ProjectId = projId;
-            pu.UserId = userId;
+            pu.ProjectId = ProjectId;
+            pu.UserId = UserId;
 
             try
             {
                 db.ProjectUsers.Add(pu);
                 db.SaveChanges();
 
-                ApplicationUser? member = db.ApplicationUsers.Find(userId);
+                ApplicationUser? member = db.ApplicationUsers.Find(UserId);
                 if (member != null)
                 {
                     TempData["Message"] = "Member " + member.UserName + " added successfully";
                     TempData["Alert"] = "alert-success";
                 }
 
-                return RedirectToAction("AddMember", projId);
+                return RedirectToAction("AddMember", ProjectId);
             }
             catch(Exception)
             {
@@ -410,20 +409,23 @@ namespace Managr.Controllers
 
             var members = db.ProjectUsers
                             .Include("User")
-                            .Where(pu => pu.ProjectId == Id)
-                            .Select(pu => new { pu.UserId, UserName = (pu.User == null ? "" : pu.User.UserName) });
-            var dropDownMembers = new List<SelectListItem>();
+                            .Where(pu => pu.ProjectId == Id);
+            var membersList = new List<ApplicationUser>();
             foreach (var user in members)
             {
                 if (user.UserId != proj.OrganizerId)
                 {
-                    dropDownMembers.Add(new SelectListItem{ Text = user.UserName, Value = user.UserId });
+                    ApplicationUser? appUser = db.Users.Find(user.UserId);
+                    if (appUser != null)
+                    {
+                        membersList.Add(appUser);
+                    }
                 }
             }
 
-            proj.DropDownMembers = dropDownMembers;
+            proj.Members = membersList;
 
-            if (dropDownMembers.Count == 0)
+            if (membersList.Count == 0)
             {
                 TempData["Message"] = "No more members can be removed (Only the Organizer is left)";
                 TempData["Alert"] = "alert-warning";
@@ -436,27 +438,27 @@ namespace Managr.Controllers
 
         // Receives data from form and removes the member
         [HttpPost]
-        public IActionResult RemoveMember([FromForm] int projId, [FromForm] string userId)
+        public IActionResult RemoveMember([FromForm] int ProjectId, [FromForm] string UserId)
         {
-            Project? proj = GetProjectById(projId);
+            Project? proj = GetProjectById(ProjectId);
 
             if (proj == null)
             {
                 TempData["Message"] = "The project does not exist or you don't have privileges to remove a user";
                 TempData["Alert"] = "alert-danger";
 
-                return RedirectToAction("Show", projId);
+                return RedirectToAction("Show", ProjectId);
             }
 
             ProjectUser? pu = db.ProjectUsers
-                                .Find(projId, userId);
+                                .Find(ProjectId, UserId);
 
             if (pu == null)
             {
                 TempData["Message"] = "User is not member of the Project";
                 TempData["Alert"] = "alert-danger";
 
-                return RedirectToAction("Show", projId);
+                return RedirectToAction("Show", ProjectId);
             }
 
             db.ProjectUsers
@@ -464,7 +466,7 @@ namespace Managr.Controllers
             db.SaveChanges();
 
             ApplicationUser? user = db.ApplicationUsers
-                                      .Find(userId);
+                                      .Find(UserId);
 
             if (user != null)
             {
@@ -472,7 +474,7 @@ namespace Managr.Controllers
                 TempData["Alert"] = "alert-success";
             }
 
-            return RedirectToAction("RemoveMember", projId);
+            return RedirectToAction("RemoveMember", ProjectId);
         }
 
         // Admin controlls area
@@ -510,20 +512,23 @@ namespace Managr.Controllers
 
             var members = db.ProjectUsers
                             .Include("User")
-                            .Where(pu => pu.ProjectId == Id)
-                            .Select(pu => new { pu.UserId, UserName = (pu.User == null ? "" : pu.User.UserName) });
-            var dropDownMembers = new List<SelectListItem>();
+                            .Where(pu => pu.ProjectId == Id);
+            var membersList = new List<ApplicationUser>();
             foreach (var user in members)
             {
                 if (user.UserId != proj.OrganizerId)
                 {
-                    dropDownMembers.Add(new SelectListItem{ Text = user.UserName, Value = user.UserId });
+                    ApplicationUser? appUser = db.Users.Find(user.UserId);
+                    if (appUser != null)
+                    {
+                        membersList.Add(appUser);
+                    }
                 }
             }
 
-            proj.DropDownMembers = dropDownMembers;
+            proj.Members = membersList;
 
-            if (dropDownMembers.Count == 0)
+            if (membersList.Count == 0)
             {
                 TempData["Message"] = "No other member in project";
                 TempData["Alert"] = "alert-warning";
@@ -536,34 +541,34 @@ namespace Managr.Controllers
 
         // Receives data from form and transfers project ownership
         [HttpPost]
-        public IActionResult TransferOwnership([FromForm] int projId, [FromForm] string userId)
+        public IActionResult TransferOwnership([FromForm] int ProjectId, [FromForm] string UserId)
         {
-            Project? proj = GetProjectById(projId);
+            Project? proj = GetProjectById(ProjectId);
 
             if (proj == null)
             {
                 TempData["Message"] = "The project does not exist or you don't have owner privileges over it";
                 TempData["Alert"] = "alert-danger";
 
-                return RedirectToAction("Show", projId);
+                return RedirectToAction("Show", ProjectId);
             }
 
             ProjectUser? pu = db.ProjectUsers
-                                .Find(projId, userId);
+                                .Find(ProjectId, UserId);
 
             if (pu == null)
             {
                 TempData["Message"] = "User is not a member of the Project";
                 TempData["Alert"] = "alert-danger";
 
-                return RedirectToAction("Admin", projId);
+                return RedirectToAction("Admin", ProjectId);
             }
 
-            proj.OrganizerId = userId;
+            proj.OrganizerId = UserId;
             db.SaveChanges();
 
             ApplicationUser? user = db.ApplicationUsers
-                                      .Find(userId);
+                                      .Find(UserId);
 
             if (user != null)
             {
@@ -571,7 +576,7 @@ namespace Managr.Controllers
                 TempData["Alert"] = "alert-success";
             }
 
-            return RedirectToAction("Show", new { Id = projId });
+            return RedirectToAction("Show", new { Id = ProjectId });
         }
 
         // Loads the alert and the message from TempData into ViewBag
