@@ -56,59 +56,39 @@
 
 <br />  
 
-@foreach (Managr.Models.Project proj in ViewBag.Proiecte)
-{
-    <div class="card">
-        <div class="card-body">
-            <h3 class="card-title alert-primary py-3 px-3 rounded-2">
-                @proj.Name
-            </h3>
-
-            <div class="card-text">
-                @proj.Description
-            </div>
-
-            <div class="d-flex justify-content-around flex-row mt-5">
-                <div class="d-flex flex-column justify-content-center">
-                    <a class="btn btn-success" href="/Projects/Show/@proj.Id">
-                        Open project
-                    </a>
-                </div>
-
-                <div class="d-flex flex-column">
-                    <div class="alert-dark d-flex justify-content-between">
-                        <i class="bi bi-gear"></i>
-                        Project maintained by
-                        <i class="bi bi-gear"></i>
-                    </div>
-                    @if (@proj.Organizer != null)
-                    {
-                        <div class="alert-dark d-flex justify-content-between">
-                            <i class="bi bi-person"></i>
-                            @proj.Organizer.UserName
-                            <i class="bi bi-person"></i>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="alert-danger">
-                            There was an error getting project data. We suggest contacting an admin
-                        </div>
-                    }
-                    <div class="alert-dark d-flex justify-content-between">
-                        <i class="bi bi-pencil"></i>
-                        and started on
-                        <i class="bi bi-pencil"></i>
-                    </div>
-                    <span class="alert-dark d-flex justify-content-between">
-                        <i class="bi bi-calendar-heart"></i>
-                        @proj.CreationDate
-                        <i class="bi bi-calendar-heart"></i>
-                    </span>
+<div class="d-flex justify-content-between">
+    @for (int i = 0; i < 4 && i < ViewBag.CntProj; ++i)
+    {
+        Managr.Models.Project proj = ViewBag.Proiecte[i];
+        <a href="/Projects/Show/@(proj.Id)" style="width: 20%; text-decoration: none; color: #084298;" class="d-flex">
+            <div class="alert-primary py-3 px-3 rounded-2" style="width: 100%">
+                <h3 class="card-title" style="text-align: center">
+                    @proj.Name
+                </h3>
+                <br>
+                <div class="card-text" style="font-size: 8pt; text-align: right;">
+                    Made with <i class="bi bi-heart"></i> by @proj.Organizer.UserName
                 </div>
             </div>
-        </div>
-    </div>
-
-    <br />
-}
+        </a>
+    }
+</div>
+<br />
+<br />
+<div class="d-flex justify-content-between">
+    @for (int i = 4; i < 8 && i < ViewBag.CntProj; ++i)
+    {
+        Managr.Models.Project proj = ViewBag.Proiecte[i];
+        <a href="/Projects/Show/@(proj.Id)" style="width: 20%; text-decoration: none; color: #084298;" class="d-flex">
+            <div class="alert-primary py-3 px-3 rounded-2" style="width: 100%">
+                <h3 class="card-title" style="text-align: center">
+                    @proj.Name
+                </h3>
+                <br>
+                <div class="card-text" style="font-size: 8pt; text-align: right;">
+                    Made with <i class="bi bi-heart"></i> by @proj.Organizer.UserName
+                </div>
+            </div>
+        </a>
+    }
+</div>

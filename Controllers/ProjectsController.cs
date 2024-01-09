@@ -11,7 +11,7 @@ namespace Managr.Controllers
     [Authorize]
     public class ProjectsController : Controller
     {
-        const int PROJECTS_PER_PAGE = 5;
+        const int PROJECTS_PER_PAGE = 8;
         const int TASKS_PER_PAGE = 5;
 
         // Database
@@ -64,7 +64,16 @@ namespace Managr.Controllers
                                             && (searchStr == null || proj.Name.Contains(searchStr) || proj.Description.Contains(searchStr)))
                              .OrderBy(proj => proj.Name);
 
-            ViewBag.Proiecte = Proiecte.Skip(pageId * PROJECTS_PER_PAGE).Take(PROJECTS_PER_PAGE);
+            var ProiecteAux = Proiecte.Skip(pageId * PROJECTS_PER_PAGE).Take(PROJECTS_PER_PAGE);
+            ViewBag.CntProj = ProiecteAux.Count();
+            ViewBag.Proiecte = new Project[ViewBag.CntProj];
+            {
+                int i = 0;
+                foreach (var proj in ProiecteAux)
+                {
+                    ViewBag.Proiecte[i++] = proj;
+                }
+            }
             ViewBag.PageId = pageId;
             ViewBag.CntPages = Proiecte.Count() / PROJECTS_PER_PAGE + (Proiecte.Count() % PROJECTS_PER_PAGE > 0 ? 1 : 0);
             ViewBag.SearchString = searchStr;

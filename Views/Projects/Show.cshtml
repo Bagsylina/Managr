@@ -11,52 +11,67 @@
     </div>
 }
 
-<h1 class="alert alert-primary">
-    @Model.Name
-</h1>
+<div>
+    <div class="d-flex justify-content-between">
+        <h1 class="alert alert-primary" style="width: fit-content; border-radius: 5pt">
+            @Model.Name
+        </h1>
+
+        @if (@Model.Organizer != null)
+        {
+            <div class="d-flex" style="justify-content: right;">
+                <div class="d-flex flex-column">
+                    <div class="d-flex justify-content-between alert-dark" style="padding: 5pt; border-radius: 5pt;">
+                        <div class="d-flex flex-column justify-content-center">
+                            <i class="bi bi-gear"></i>
+                        </div>
+                        <div class="d-flex flex-column" style="margin-left: 3pt; margin-right: 3pt;">
+                            <span style="text-align: center">
+                                This project is maintained by
+                            </span>
+                            <span style="text-align: center">
+                                @if (Model.Organizer.Id == ViewBag.UserId)
+                                {
+                                    <text>You!</text>
+                                }
+                                else
+                                {
+                                    @Model.Organizer.UserName
+                                }
+                            </span>
+                        </div>
+                        <div class="d-flex flex-column justify-content-center">
+                            <i class="bi bi-gear"></i>
+                        </div>
+                    </div>
+                    <div style="margin-top: 1pt;">
+                        @if (ViewBag.UserId == @Model.OrganizerId || ViewBag.IsAdmin)
+                        {
+                            TempData["ProjectId"] = Model.Id;
+                            <div class="d-flex justify-content-center">
+                                <a class="btn btn-warning" href="/Projects/Admin/@Model.Id">
+                                    <span class="text-success">
+                                        Admin area
+                                    </span>
+                                </a>
+                            </div>
+                            <br />
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-danger">
+                <h2>The page did not load correctly. We suggest contacting an admin.</h2>
+            </div>
+        }
+    </div>
+</div>
 
 <div>
     @Model.Description
-</div>
-
-<br />
-
-<div>
-    @if (@Model.Organizer != null)
-    {
-        <div class="alert-dark d-flex justify-content-between">
-            <i class="bi bi-gear"></i>
-            This project is maintained by
-            <i class="bi bi-gear"></i>
-        </div>
-        <div class="alert-dark d-flex justify-content-between">
-            <i class="bi bi-person"></i>
-            @Model.Organizer.UserName
-            <i class="bi bi-person"></i>
-        </div>
-    }
-    else
-    {
-        <div class="alert alert-danger">
-            <h2>The page did not load correctly. We suggest contacting an admin.</h2>
-        </div>
-    }
-
-
-    <br />
-
-    @if (ViewBag.UserId == @Model.OrganizerId || ViewBag.IsAdmin)
-    {
-        TempData["ProjectId"] = Model.Id;
-        <div class="d-flex justify-content-center">
-            <a class="btn btn-warning" href="/Projects/Admin/@Model.Id">
-                <span class="text-success">
-                    Admin area
-                </span>
-            </a>
-        </div>
-        <br />
-    }
 </div>
 
 <br />
