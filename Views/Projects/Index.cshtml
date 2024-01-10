@@ -56,11 +56,11 @@
 
 <br />  
 
-<div class="d-flex justify-content-between">
+<div style="display: grid; grid-column-gap: 6.666%; grid-template-columns: 20% 20% 20% 20%;">
     @for (int i = 0; i < 4 && i < ViewBag.CntProj; ++i)
     {
         Managr.Models.Project proj = ViewBag.Proiecte[i];
-        <a href="/Projects/Show/@(proj.Id)" style="width: 20%; text-decoration: none; color: #084298;" class="d-flex">
+        <a href="/Projects/Show/@(proj.Id)" style="text-decoration: none; color: #084298; grid-column: @(i + 1);" class="d-flex">
             <div class="alert-primary py-3 px-3 rounded-2" style="width: 100%">
                 <h3 class="card-title" style="text-align: center">
                     @proj.Name
@@ -75,11 +75,11 @@
 </div>
 <br />
 <br />
-<div class="d-flex justify-content-between">
+<div style="display: grid; grid-column-gap: 6.666%; grid-template-columns: 20% 20% 20% 20%;">
     @for (int i = 4; i < 8 && i < ViewBag.CntProj; ++i)
     {
         Managr.Models.Project proj = ViewBag.Proiecte[i];
-        <a href="/Projects/Show/@(proj.Id)" style="width: 20%; text-decoration: none; color: #084298;" class="d-flex">
+        <a href="/Projects/Show/@(proj.Id)" style="text-decoration: none; color: #084298; grid-column: @(i - 3);" class="d-flex">
             <div class="alert-primary py-3 px-3 rounded-2" style="width: 100%">
                 <h3 class="card-title" style="text-align: center">
                     @proj.Name

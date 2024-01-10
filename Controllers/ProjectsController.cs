@@ -514,6 +514,10 @@ namespace Managr.Controllers
               .Remove(pu);
             db.SaveChanges();
 
+            var subTasks = db.Tasks.Where(task => task.ProjectId == ProjectId);
+            db.UserTasks.RemoveRange(db.UserTasks.Where(ut => ut.UserId == UserId && subTasks.Where(task => task.Id == ut.TaskId).Count() != 0));
+            db.SaveChanges();
+
             ApplicationUser? user = db.ApplicationUsers
                                       .Find(UserId);
 

@@ -9,6 +9,7 @@
         <i class="bi-arrow-left"></i> Go back
     </a>
 </div>
+<br />
 
 @if (ViewBag.Message != null)
 {
@@ -33,7 +34,7 @@
 <br />
 
 <div class="d-flex justify-content-center">
-    <div class="d-flex justify-content-evenly" style="width: 75%">
+    <div class="d-flex justify-content-evenly" style="width: 80%">
         <a class="btn btn-outline-success" href="/Tasks/New">
             <i class="bi bi-clipboard-plus"></i>
             New Task
@@ -58,6 +59,20 @@
             <i class="bi bi-person-up"></i>
             Transfer ownership
             <i class="bi bi-person-down"></i>
+        </a>
+    </div>
+</div>
+
+<br />
+
+<div class="d-flex justify-content-center">
+    <div class="d-flex alert alert-danger flex-column" style="align-items: center;">
+        <span>
+            WARNING: Cannot be undone!
+        </span>
+        <a class="btn btn-outline-danger" href="/Projects/Delete/@Model.Id" style="width: fit-content">
+            <i class="bi bi-folder-x"></i>
+            Delete project
         </a>
     </div>
 </div>

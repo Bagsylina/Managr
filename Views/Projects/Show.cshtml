@@ -4,6 +4,13 @@
     ViewBag.Title = "Show";
 }
 
+<div>
+    <a class="btn btn-secondary" href="/Projects/Index">
+        <i class="bi-arrow-left"></i> Go back
+    </a>
+</div>
+<br />
+
 @if (ViewBag.Message != null)
 {
     <div class="alert @ViewBag.Alert p-3 rounded-3 text-center mb-5">
@@ -12,8 +19,8 @@
 }
 
 <div>
-    <div class="d-flex justify-content-between">
-        <h1 class="alert alert-primary" style="width: fit-content; border-radius: 5pt">
+    <div class="d-flex justify-content-between" style="align-items: center;">
+        <h1 class="alert alert-primary" style="height: fit-content; width: fit-content; border-radius: 5pt; display: flex; align-items: center;">
             @Model.Name
         </h1>
 
