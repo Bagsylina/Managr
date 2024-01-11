@@ -35,7 +35,7 @@ namespace Managr.Controllers
         [HttpGet]
         public IActionResult New()
         {
-            var projectId = TempData["ProjectId"];
+            var projectId = Convert.ToInt32(Convert.ToString(HttpContext.Request.Query["projid"]).Trim());
 
             Models.Task task = new Models.Task();
 
