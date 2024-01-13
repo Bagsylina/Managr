@@ -154,7 +154,7 @@
                     @if (@comm.User != null)
                     {
                         <div>
-                            <p>@Html.Raw(comm.Content)</p>
+                            <p>@comm.Content</p>
                             <small>@comm.CreatedDate</small>
                             <strong><i class="bi bi-person"></i>@comm.User.UserName</strong>
                         </div>
@@ -204,7 +204,7 @@
                         <input type="hidden" name="TaskId" value="@Model.Id" />
 
                         <label>Comment</label>
-                        <textarea class="summernote" name="Content"></textarea>
+                        <textarea class="form-control" name="Content"></textarea>
                         @Html.ValidationMessage("Content", null, new { @class = "text-danger" })
                         <br/>
 
