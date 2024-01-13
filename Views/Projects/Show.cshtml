@@ -77,8 +77,10 @@
     </div>
 </div>
 
-<div>
-    @Model.Description
+<div style="max-height: 250pt; overflow: auto;">
+    <div style="padding: 5pt; margin: 5pt;">
+        @Html.Raw(Model.Description)
+    </div>
 </div>
 
 <br />

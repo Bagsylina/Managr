@@ -24,7 +24,7 @@
     <br />
 
     @Html.Label("Description", "Description")
-    @Html.Editor("Description", new { htmlAttributes = new { @class = "form-control" } })
+    @Html.Editor("Description", new { @class = "summernote" })
     @Html.ValidationMessage("Description", null, new { @class = "text-danger" })
     <br />
 

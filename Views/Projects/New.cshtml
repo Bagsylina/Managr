@@ -26,9 +26,7 @@
 
         @Html.Label("Description", "Public Project Description:")
         <br />
-        // TODO: summernote here to expand customization possibilities for
-        // project description
-        @Html.TextArea("Description", null, new { @class = "form-control" })
+        @Html.TextArea("Description", null, new { @class = "summernote" })
 
         @Html.ValidationMessage("Description", null, new { @class = "text-danger" })
         <br />
