@@ -28,18 +28,27 @@ namespace Managr.Controllers
         [HttpGet]
         public IActionResult Edit(int id)
         {
-            Comment comment = db.Comments.Find(id);
+            try
+            {
+                Comment comment = db.Comments.Find(id);
+                if (comment.UserId == _userManager.GetUserId(User))
+                {
+                    return View(comment);
+                }
+                else
+                {
+                    TempData["Message"] = "You don't have the rights to edit this comment.";
+                    TempData["Alert"] = "alert-danger";
 
-            if (comment.UserId == _userManager.GetUserId(User))
-            {
-                return View(comment);
+                    return Redirect("/Tasks/Show/" + comment.TaskId);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                TempData["Message"] = "You don't have the rights to edit this comment.";
+                TempData["Message"] = "The comment doesn't exist.";
                 TempData["Alert"] = "alert-danger";
 
-                return Redirect("/Tasks/Show/" + comment.TaskId);
+                return Redirect("/Projects/Index/");
             }
         }
 

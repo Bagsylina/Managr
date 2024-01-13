@@ -35,6 +35,14 @@ namespace Managr.Controllers
         [HttpGet]
         public IActionResult New()
         {
+            if(Convert.ToString(HttpContext.Request.Query["projid"]) == null)
+            {
+                TempData["Message"] = "The project does not exist.";
+                TempData["Alert"] = "alert-danger";
+
+                return Redirect("/Projects/Index");
+            }
+
             var projectId = Convert.ToInt32(Convert.ToString(HttpContext.Request.Query["projid"]).Trim());
 
             Models.Task task = new Models.Task();
@@ -49,6 +57,14 @@ namespace Managr.Controllers
             else
             {
                 Project project = db.Projects.Find(projectId);
+
+                if(project == null)
+                {
+                    TempData["Message"] = "The project does not exist.";
+                    TempData["Alert"] = "alert-danger";
+
+                    return Redirect("/Projects/Index");
+                }
 
                 if(project.OrganizerId != _userManager.GetUserId(User))
                 {
@@ -120,6 +136,16 @@ namespace Managr.Controllers
         [Authorize(Roles = "User,Admin")]
         public IActionResult Show(int id)
         {
+            int count = db.Tasks.Where(tsk => tsk.Id == id).Count();
+
+            if(count == 0)
+            {
+                TempData["Message"] = "The task doesn't exist.";
+                TempData["Alert"] = "alert-danger";
+
+                return Redirect("/Projects/Index/");
+            }
+
             Models.Task task = db.Tasks.Include("Comments").Include("Comments.User")
                                 .Where(tsk => tsk.Id == id)
                                 .First();
@@ -174,6 +200,15 @@ namespace Managr.Controllers
         public IActionResult Edit(int id) 
         {
             Models.Task task = db.Tasks.Find(id);
+
+            if(task == null)
+            {
+                TempData["Message"] = "The task doesn't exist.";
+                TempData["Alert"] = "alert-danger";
+
+                return Redirect("/Projects/Index/");
+            }
+
             Project project = db.Projects.Find(task.ProjectId);
 
             if (project.OrganizerId == _userManager.GetUserId(User))
@@ -332,6 +367,16 @@ namespace Managr.Controllers
         [Authorize(Roles = "User,Admin")]
         public IActionResult ShowUsers(int id) //page to show list of all assgined users to a task and option to remove them
         {
+            int count = db.Tasks.Where(tsk => tsk.Id == id).Count();
+
+            if (count == 0)
+            {
+                TempData["Message"] = "The task doesn't exist.";
+                TempData["Alert"] = "alert-danger";
+
+                return Redirect("/Projects/Index/");
+            }
+
             Models.Task task = db.Tasks
                                 .Where(tsk => tsk.Id == id)
                                 .First();
@@ -375,6 +420,16 @@ namespace Managr.Controllers
         [Authorize(Roles = "User,Admin")]
         public IActionResult AssignUsers(int id) //page to show list of all project users that aren't assigned to the task and option to add them
         {
+            int count = db.Tasks.Where(tsk => tsk.Id == id).Count();
+
+            if (count == 0)
+            {
+                TempData["Message"] = "The task doesn't exist.";
+                TempData["Alert"] = "alert-danger";
+
+                return Redirect("/Projects/Index/");
+            }
+
             Models.Task task = db.Tasks
                                 .Where(tsk => tsk.Id == id)
                                 .First();
